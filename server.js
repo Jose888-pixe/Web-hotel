@@ -21,10 +21,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve React build files from hotel-react/build when in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'hotel-react/build')));
-}
+// NOTE: Frontend is deployed separately as a Static Site on Render
+// No need to serve static files from backend
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, 'hotel-react/build')));
+// }
 
 // Simple auth middleware
 const authenticateToken = async (req, res, next) => {
