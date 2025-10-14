@@ -36,10 +36,10 @@ async function updatePastReservations() {
 
     console.log(`\n✅ Deleted ${deletedPaid} paid reservations`);
 
-    // Update unpaid reservations to payment-pending
+    // Update unpaid reservations to pending status
     const [updatedUnpaid] = await Reservation.update(
       { 
-        status: 'payment-pending',
+        status: 'pending',
         paymentStatus: 'pending'
       },
       {
@@ -51,7 +51,7 @@ async function updatePastReservations() {
       }
     );
 
-    console.log(`✅ Updated ${updatedUnpaid} unpaid reservations to payment-pending`);
+    console.log(`✅ Updated ${updatedUnpaid} unpaid reservations to pending status`);
 
     process.exit(0);
   } catch (error) {
