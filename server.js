@@ -1267,20 +1267,20 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Serve React app for all routes (catch-all route must be last)
+// API catch-all route - Frontend is deployed separately
 app.get('*', (req, res) => {
-  // Skip API routes
+  // Only handle API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ message: 'API endpoint not found' });
   }
   
-  // In production, serve React build
-  if (process.env.NODE_ENV === 'production') {
-    res.sendFile(path.join(__dirname, 'hotel-react/build', 'index.html'));
-  } else {
-    // In development, just return a simple message since React dev server handles routing
-    res.json({ message: 'React development server should handle this route' });
-  }
+  // For non-API routes, return a message
+  // Frontend is deployed as a separate Static Site on Render
+  res.json({ 
+    message: 'Hotel API Backend',
+    status: 'Backend is running',
+    note: 'Frontend is deployed separately at the Static Site URL'
+  });
 });
 
 // Contact routes
