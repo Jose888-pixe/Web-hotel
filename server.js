@@ -5,6 +5,9 @@ require('dotenv').config();
 
 const { sequelize } = require('./config/database');
 const { User, Room, Reservation, Payment, Contact } = require('./models');
+const { initializeTransporter, sendEmail, emailTemplates } = require('./services/emailService');
+const { getNextOperator } = require('./services/operatorRotationService');
+const { initializeCronJobs } = require('./services/cronService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -217,81 +220,93 @@ app.get('/api/rooms/:id', async (req, res) => {
   }
 });
 
-// Get occupied dates for a room
+// Get occupied dates for a room (checks ALL rooms of same type)
 app.get('/api/rooms/:id/occupied-dates', async (req, res) => {
   try {
     const { Op } = require('sequelize');
     const roomId = req.params.id;
-    console.log(`📅 Getting occupied dates for room ${roomId}`);
+    console.log(`📅 Getting occupied dates for room type ${roomId}`);
     
-    // Get room information to check maintenance status
+    // Get room information
     const room = await Room.findByPk(roomId);
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
     
-    // Get all confirmed/checked-in reservations for this room (exclude pending)
+    // Get ALL rooms of the same type and name
+    const roomsOfSameType = await Room.findAll({
+      where: {
+        type: room.type,
+        name: room.name,
+        isActive: true
+      }
+    });
+    
+    console.log(`Found ${roomsOfSameType.length} rooms of type '${room.type}' - '${room.name}'`);
+    
+    // Get all reservations for rooms of this type
+    const roomIds = roomsOfSameType.map(r => r.id);
     const reservations = await Reservation.findAll({
       where: {
-        roomId: parseInt(roomId),
+        roomId: { [Op.in]: roomIds },
         status: { [Op.in]: ['confirmed', 'checked-in'] }
       },
-      attributes: ['id', 'checkIn', 'checkOut', 'status']
+      attributes: ['id', 'roomId', 'checkIn', 'checkOut', 'status']
     });
     
-    console.log(`Found ${reservations.length} confirmed/checked-in reservations for room ${roomId}`);
-    reservations.forEach(r => {
-      console.log(`  - Reservation ${r.id}: ${r.checkIn} to ${r.checkOut} (${r.status})`);
-    });
+    console.log(`Found ${reservations.length} reservations for rooms of this type`);
     
-    // Generate array of occupied dates from reservations
-    const occupiedDates = [];
+    // Group reservations by date and count how many rooms are occupied each day
+    const dateOccupancyMap = {};
+    
     reservations.forEach(reservation => {
       const start = new Date(reservation.checkIn);
       const end = new Date(reservation.checkOut);
       
-      // Add all dates between check-in and check-out
+      // Count each date between check-in and check-out
       for (let date = new Date(start); date < end; date.setDate(date.getDate() + 1)) {
-        occupiedDates.push(new Date(date).toISOString().split('T')[0]);
+        const dateStr = new Date(date).toISOString().split('T')[0];
+        if (!dateOccupancyMap[dateStr]) {
+          dateOccupancyMap[dateStr] = 0;
+        }
+        dateOccupancyMap[dateStr]++;
       }
     });
     
-    // Add maintenance dates if room has maintenanceUntil date or is not active
-    if (room.maintenanceUntil || !room.isActive) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      // If maintenanceUntil is set, use it; otherwise use a far future date if room is permanently closed
-      if (room.maintenanceUntil) {
-        const maintenanceEnd = new Date(room.maintenanceUntil);
-        maintenanceEnd.setHours(0, 0, 0, 0);
+    // Add maintenance dates for rooms in maintenance
+    roomsOfSameType.forEach(r => {
+      if (r.maintenanceUntil || r.status === 'maintenance') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        console.log(`🔧 Room is in maintenance until ${room.maintenanceUntil}`);
-        
-        // Only add future dates (not past maintenance)
-        if (maintenanceEnd >= today) {
-          // Add all dates from today until maintenanceUntil
-          for (let date = new Date(today); date <= maintenanceEnd; date.setDate(date.getDate() + 1)) {
-            occupiedDates.push(new Date(date).toISOString().split('T')[0]);
+        if (r.maintenanceUntil) {
+          const maintenanceEnd = new Date(r.maintenanceUntil);
+          maintenanceEnd.setHours(0, 0, 0, 0);
+          
+          if (maintenanceEnd >= today) {
+            for (let date = new Date(today); date <= maintenanceEnd; date.setDate(date.getDate() + 1)) {
+              const dateStr = new Date(date).toISOString().split('T')[0];
+              if (!dateOccupancyMap[dateStr]) {
+                dateOccupancyMap[dateStr] = 0;
+              }
+              dateOccupancyMap[dateStr]++;
+            }
           }
         }
-      } else if (!room.isActive) {
-        // If room is closed without a specific end date, block next 365 days
-        console.log(`🔧 Room is closed indefinitely`);
-        const oneYearFromNow = new Date(today);
-        oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-        
-        for (let date = new Date(today); date <= oneYearFromNow; date.setDate(date.getDate() + 1)) {
-          occupiedDates.push(new Date(date).toISOString().split('T')[0]);
-        }
       }
-    }
+    });
     
-    const uniqueDates = [...new Set(occupiedDates)];
-    console.log(`📍 Total occupied dates for room ${roomId}:`, uniqueDates.length);
-    console.log(`📍 Dates:`, uniqueDates);
+    // Only mark dates as occupied if ALL rooms of this type are occupied
+    const totalRoomsAvailable = roomsOfSameType.length;
+    const fullyOccupiedDates = Object.entries(dateOccupancyMap)
+      .filter(([date, count]) => count >= totalRoomsAvailable)
+      .map(([date]) => date);
     
-    res.json({ occupiedDates: uniqueDates });
+    console.log(`📍 Total rooms of this type: ${totalRoomsAvailable}`);
+    console.log(`📍 Fully occupied dates (all rooms booked): ${fullyOccupiedDates.length}`);
+    console.log(`📍 Dates:`, fullyOccupiedDates);
+    
+    res.json({ occupiedDates: fullyOccupiedDates });
   } catch (error) {
     console.error('Get occupied dates error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -421,44 +436,79 @@ app.post('/api/reservations', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Check room availability
     const { Op } = require('sequelize');
-    const conflictingReservations = await Reservation.findAll({
-      where: {
-        roomId: parseInt(roomId),
-        [Op.or]: [
-          {
-            checkIn: { [Op.lte]: checkOut },
-            checkOut: { [Op.gt]: checkIn }
-          }
-        ],
-        status: { [Op.in]: ['pending', 'confirmed', 'checked-in'] }
-      }
-    });
 
-    if (conflictingReservations.length > 0) {
-      return res.status(400).json({ message: 'Room not available for selected dates' });
-    }
-
-    // Get room price
-    const room = await Room.findByPk(parseInt(roomId));
-    if (!room) {
+    // Get the selected room (to know its type and name)
+    const selectedRoom = await Room.findByPk(parseInt(roomId));
+    if (!selectedRoom) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
-    // Check if room is in maintenance during the requested dates
-    if (room.status === 'maintenance' && room.maintenanceUntil) {
-      const checkInDate = new Date(checkIn);
-      const maintenanceEnd = new Date(room.maintenanceUntil);
-      checkInDate.setHours(0, 0, 0, 0);
-      maintenanceEnd.setHours(0, 0, 0, 0);
-      
-      if (checkInDate <= maintenanceEnd) {
-        return res.status(400).json({ 
-          message: `Esta habitación está en mantenimiento hasta el ${maintenanceEnd.toLocaleDateString()}. Por favor selecciona otra fecha o habitación.` 
-        });
+    // Get ALL rooms of the same type and name
+    const roomsOfSameType = await Room.findAll({
+      where: {
+        type: selectedRoom.type,
+        name: selectedRoom.name,
+        isActive: true,
+        status: { [Op.ne]: 'maintenance' } // Exclude rooms in permanent maintenance
+      }
+    });
+
+    console.log(`Found ${roomsOfSameType.length} rooms of type '${selectedRoom.type}' - '${selectedRoom.name}'`);
+
+    // Check which rooms are available for the selected dates
+    const availableRoomIds = [];
+    
+    for (const room of roomsOfSameType) {
+      // Check if room has conflicting reservations
+      const conflictingReservations = await Reservation.findAll({
+        where: {
+          roomId: room.id,
+          [Op.or]: [
+            {
+              checkIn: { [Op.lte]: checkOut },
+              checkOut: { [Op.gt]: checkIn }
+            }
+          ],
+          status: { [Op.in]: ['pending', 'confirmed', 'checked-in'] }
+        }
+      });
+
+      // Check if room is in maintenance during requested dates
+      let inMaintenance = false;
+      if (room.status === 'maintenance' && room.maintenanceUntil) {
+        const checkInDate = new Date(checkIn);
+        const maintenanceEnd = new Date(room.maintenanceUntil);
+        checkInDate.setHours(0, 0, 0, 0);
+        maintenanceEnd.setHours(0, 0, 0, 0);
+        
+        if (checkInDate <= maintenanceEnd) {
+          inMaintenance = true;
+        }
+      }
+
+      // If no conflicts and not in maintenance, this room is available
+      if (conflictingReservations.length === 0 && !inMaintenance) {
+        availableRoomIds.push(room.id);
       }
     }
+
+    console.log(`Available rooms: ${availableRoomIds.length} out of ${roomsOfSameType.length}`);
+
+    // If no rooms available, return error
+    if (availableRoomIds.length === 0) {
+      return res.status(400).json({ 
+        message: 'No hay habitaciones disponibles de este tipo para las fechas seleccionadas' 
+      });
+    }
+
+    // Select a random available room
+    const randomIndex = Math.floor(Math.random() * availableRoomIds.length);
+    const assignedRoomId = availableRoomIds[randomIndex];
+    
+    // Get the assigned room details
+    const room = await Room.findByPk(assignedRoomId);
+    console.log(`Assigned room #${room.number} (ID: ${assignedRoomId}) randomly from ${availableRoomIds.length} available rooms`);
 
     // Calculate total amount
     const startDate = new Date(checkIn);
@@ -471,7 +521,7 @@ app.post('/api/reservations', authenticateToken, async (req, res) => {
 
     const reservation = await Reservation.create({
       userId: req.user.id,
-      roomId: parseInt(roomId),
+      roomId: assignedRoomId, // Use the randomly assigned available room
       reservationNumber,
       guestFirstName: guestFirstName.trim(),
       guestLastName: guestLastName.trim(),
@@ -498,12 +548,34 @@ app.post('/api/reservations', authenticateToken, async (req, res) => {
       await room.save();
     }
 
+    // Send notification email to next operator in rotation
+    try {
+      const operator = await getNextOperator();
+      if (operator) {
+        const operatorTemplate = emailTemplates.newReservationOperator(
+          reservation,
+          room,
+          req.user,
+          `${operator.firstName} ${operator.lastName}`
+        );
+        await sendEmail(operator.email, operatorTemplate);
+        console.log(`📧 Reservation notification sent to operator: ${operator.email}`);
+      } else {
+        console.warn('⚠️ No operators available to receive notification');
+      }
+    } catch (emailError) {
+      console.error('⚠️ Failed to send operator notification:', emailError);
+      // Don't fail reservation if email fails
+    }
+
     res.status(201).json({
-      message: 'Reservation created successfully',
+      message: `Reserva creada exitosamente. Se te ha asignado la habitación ${room.number}.`,
       reservation: {
         id: reservation.id,
         reservationNumber: reservation.reservationNumber,
         roomId: reservation.roomId,
+        roomNumber: room.number,
+        roomName: room.name,
         checkIn: reservation.checkIn,
         checkOut: reservation.checkOut,
         adults: reservation.adults,
@@ -614,6 +686,45 @@ app.put('/api/reservations/:id', authenticateToken, async (req, res) => {
                 room.status !== 'maintenance') {
         room.status = 'occupied';
         await room.save();
+      }
+    }
+
+    // Send email notification to user based on status change
+    if (status && status !== oldStatus) {
+      try {
+        // Get full reservation with includes
+        const fullReservation = await Reservation.findByPk(id, {
+          include: [
+            { model: Room, as: 'room' },
+            { model: User, as: 'user' }
+          ]
+        });
+
+        if (fullReservation && fullReservation.user && fullReservation.room) {
+          let template = null;
+
+          if (status === 'confirmed') {
+            template = emailTemplates.reservationConfirmed(
+              fullReservation,
+              fullReservation.room,
+              fullReservation.user
+            );
+          } else if (status === 'cancelled') {
+            template = emailTemplates.reservationCancelled(
+              fullReservation,
+              fullReservation.room,
+              fullReservation.user
+            );
+          }
+
+          if (template) {
+            await sendEmail(fullReservation.user.email, template);
+            console.log(`📧 ${status} email sent to ${fullReservation.user.email}`);
+          }
+        }
+      } catch (emailError) {
+        console.error('⚠️ Failed to send status change email:', emailError);
+        // Don't fail update if email fails
       }
     }
 
@@ -1131,6 +1242,16 @@ app.post('/api/auth/register', async (req, res) => {
       phone
     });
 
+    // Send welcome email
+    try {
+      const welcomeTemplate = emailTemplates.welcome(user);
+      await sendEmail(user.email, welcomeTemplate);
+      console.log(`📧 Welcome email sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('⚠️ Failed to send welcome email:', emailError);
+      // Don't fail registration if email fails
+    }
+
     res.status(201).json({
       message: 'User registered successfully',
       user: {
@@ -1297,6 +1418,29 @@ app.post('/api/contact', async (req, res) => {
       priority: 'medium'
     });
 
+    // Send notification email to next operator in rotation
+    try {
+      const operator = await getNextOperator();
+      if (operator) {
+        const contactTemplate = emailTemplates.contactMessage(
+          {
+            name: contact.name,
+            email: contact.email,
+            subject: contact.subject,
+            message: contact.message
+          },
+          `${operator.firstName} ${operator.lastName}`
+        );
+        await sendEmail(operator.email, contactTemplate);
+        console.log(`📧 Contact message forwarded to operator: ${operator.email}`);
+      } else {
+        console.warn('⚠️ No operators available to receive contact message');
+      }
+    } catch (emailError) {
+      console.error('⚠️ Failed to send contact notification:', emailError);
+      // Don't fail contact creation if email fails
+    }
+
     res.status(201).json({
       message: 'Message sent successfully',
       contact: {
@@ -1335,9 +1479,19 @@ const startServer = async () => {
     await sequelize.sync();
     console.log('✅ Database synced');
     
+    // Initialize email service
+    await initializeTransporter();
+    console.log('✅ Email service initialized');
+    
+    // Initialize cron jobs
+    initializeCronJobs();
+    console.log('✅ Cron jobs initialized');
+    
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
       console.log(`🌟 Server running on http://localhost:${PORT}`);
+      console.log(`📧 Email notifications: ENABLED`);
+      console.log(`⏰ Check-in reminders: Daily at 9:00 AM`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
