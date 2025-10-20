@@ -1478,6 +1478,16 @@ const startServer = async () => {
     await sequelize.sync();
     console.log('✅ Database synced');
     
+    // Seed production database if empty
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        const seedProduction = require('./scripts/seedProduction');
+        await seedProduction();
+      } catch (error) {
+        console.warn('⚠️ Production seed skipped or failed:', error.message);
+      }
+    }
+    
     // Run initial cleanup and room status update after DB is ready
     try {
       await cleanupPastReservations();
