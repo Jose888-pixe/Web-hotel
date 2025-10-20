@@ -1,0 +1,27 @@
+/* Operator Page Styles */
+
+.room-group-header {
+  cursor: pointer;
+  background-color: #f8f9fa;
+}
+
+.room-group-chevron {
+  font-size: 1rem;
+  min-width: 16px;
+}
+
+.room-status-card.available {
+  border-left: 4px solid #198754;
+}
+
+.room-status-card.occupied {
+  border-left: 4px solid #dc3545;
+}
+
+.room-status-card.maintenance {
+  border-left: 4px solid #ffc107;
+}
+
+.room-status-card.cleaning {
+  border-left: 4px solid #0dcaf0;
+}

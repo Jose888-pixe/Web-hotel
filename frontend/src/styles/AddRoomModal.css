@@ -1,0 +1,214 @@
+/* Add Room Modal Styles */
+
+.add-room-modal .modal-content {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.add-room-modal .modal-header {
+  background: linear-gradient(135deg, #005187 0%, #4d82bc 100%);
+  color: white;
+  border-radius: 15px 15px 0 0;
+  padding: 1.5rem;
+}
+
+.add-room-modal .modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.add-room-modal .modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.add-room-modal .modal-body {
+  padding: 2rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Form Sections */
+.form-section {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #005187;
+}
+
+.section-title {
+  color: #005187;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.section-title i {
+  font-size: 1.25rem;
+}
+
+/* Form Controls */
+.add-room-modal .form-label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.add-room-modal .form-control,
+.add-room-modal .form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.add-room-modal .form-control:focus,
+.add-room-modal .form-select:focus {
+  border-color: #005187;
+  box-shadow: 0 0 0 0.2rem rgba(0, 81, 135, 0.25);
+}
+
+.add-room-modal textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Checkboxes */
+.add-room-modal .form-check {
+  padding-left: 1.75rem;
+}
+
+.add-room-modal .form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  cursor: pointer;
+}
+
+.add-room-modal .form-check-input:checked {
+  background-color: #005187;
+  border-color: #005187;
+}
+
+.add-room-modal .form-check-label {
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9rem;
+}
+
+/* Buttons */
+.add-room-modal .btn {
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.add-room-modal .btn-primary {
+  background: linear-gradient(135deg, #005187 0%, #003d6b 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 81, 135, 0.3);
+}
+
+.add-room-modal .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #003d6b 0%, #002a4a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 81, 135, 0.4);
+}
+
+.add-room-modal .btn-outline-secondary {
+  border: 2px solid #6c757d;
+  color: #6c757d;
+}
+
+.add-room-modal .btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.add-room-modal .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Alerts */
+.add-room-modal .alert {
+  border-radius: 10px;
+  border: none;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar */
+.add-room-modal .modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.add-room-modal .modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.add-room-modal .modal-body::-webkit-scrollbar-thumb {
+  background: #005187;
+  border-radius: 10px;
+}
+
+.add-room-modal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #003d6b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .add-room-modal .modal-body {
+    padding: 1rem;
+    max-height: 60vh;
+  }
+
+  .form-section {
+    padding: 1rem;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+
+  .add-room-modal .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}
+
+/* Required field indicator */
+.form-label::after {
+  content: '';
+}
+
+.form-label:has(+ .form-control[required])::after,
+.form-label:has(+ .form-select[required])::after {
+  content: ' *';
+  color: #dc3545;
+}

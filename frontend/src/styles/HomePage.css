@@ -1,0 +1,11 @@
+/* Home Page Styles */
+
+.map-container {
+  height: 300px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.map-container iframe {
+  border: 0;
+}

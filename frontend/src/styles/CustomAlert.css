@@ -1,0 +1,215 @@
+/* Custom Alert Styles - Azure Suites Hotel Theme */
+
+:root {
+  --primary-color: #005187;
+  --secondary-color: #4d82bc;
+  --accent-color: #84b6f4;
+  --light-accent: #c4dafa;
+  --shadow-medium: 0 5px 25px rgba(0,81,135,0.15);
+}
+
+.custom-alert.azure-alert {
+  border: none;
+  border-radius: 15px;
+  box-shadow: var(--shadow-medium);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  font-family: 'Inter', sans-serif;
+  animation: slideInDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: fixed;
+  top: 80px; /* Debajo del navbar */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050; /* Por encima del navbar (1040) */
+  min-width: 400px;
+  max-width: 600px;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.custom-alert .alert-icon {
+  font-size: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.custom-alert .alert-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+  font-family: 'Playfair Display', serif;
+}
+
+.custom-alert .alert-message {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+/* Success Alert - Hotel Theme Green */
+.custom-alert.alert-success {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.15) 100%);
+  color: #155724;
+  border-left: 5px solid #28a745;
+  box-shadow: 0 5px 25px rgba(40, 167, 69, 0.2);
+}
+
+.custom-alert.alert-success .alert-icon {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Error/Danger Alert - Hotel Theme Red */
+.custom-alert.alert-danger {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(232, 62, 140, 0.15) 100%);
+  color: #721c24;
+  border-left: 5px solid #dc3545;
+  box-shadow: 0 5px 25px rgba(220, 53, 69, 0.2);
+}
+
+.custom-alert.alert-danger .alert-icon {
+  background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Warning Alert - Hotel Theme Gold */
+.custom-alert.alert-warning {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(253, 126, 20, 0.15) 100%);
+  color: #856404;
+  border-left: 5px solid #ffc107;
+  box-shadow: 0 5px 25px rgba(255, 193, 7, 0.2);
+}
+
+.custom-alert.alert-warning .alert-icon {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+/* Info Alert - Hotel Azure Blue */
+.custom-alert.alert-info {
+  background: linear-gradient(135deg, rgba(132, 182, 244, 0.1) 0%, rgba(196, 218, 250, 0.15) 100%);
+  color: var(--primary-color);
+  border-left: 5px solid var(--accent-color);
+  box-shadow: 0 5px 25px rgba(0, 81, 135, 0.2);
+}
+
+.custom-alert.alert-info .alert-icon {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 81, 135, 0.3);
+}
+
+/* Close button styling */
+.custom-alert .btn-close {
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.custom-alert .btn-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Icon Animation */
+.custom-alert .alert-icon i {
+  animation: iconPulse 0.6s ease-out;
+}
+
+@keyframes iconPulse {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Hover Effect */
+.custom-alert.azure-alert:hover {
+  transform: translate(-50%, -2px);
+  box-shadow: 0 8px 30px rgba(0, 81, 135, 0.25);
+}
+
+/* Auto-dismiss animation */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+}
+
+.custom-alert.dismissing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .custom-alert.azure-alert {
+    min-width: 85%;
+    max-width: 85%;
+  }
+}
+
+@media (max-width: 576px) {
+  .custom-alert.azure-alert {
+    padding: 1rem;
+    min-width: 90%;
+    max-width: 90%;
+    top: 70px;
+  }
+  
+  .custom-alert .alert-icon {
+    font-size: 1.5rem;
+    width: 35px;
+    height: 35px;
+  }
+  
+  .custom-alert .alert-title {
+    font-size: 1rem;
+  }
+  
+  .custom-alert .alert-message {
+    font-size: 0.85rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .custom-alert.azure-alert {
+    position: relative;
+    transform: none;
+    left: auto;
+    top: auto;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}

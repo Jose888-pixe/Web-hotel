@@ -1,0 +1,513 @@
+/* ============================================ */
+/* FileUpload Component Styles */
+
+.file-preview-image {
+    height: 150px;
+    object-fit: cover;
+}
+
+/* FileUpload Component Styles - Azure Suites */
+/* ============================================ */
+
+:root {
+    --primary-color: #005187;
+    --secondary-color: #4d82bc;
+    --accent-color: #84b6f4;
+    --light-accent: #c4dafa;
+    --lightest: #fcffff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --gradient-primary: linear-gradient(135deg, #005187 0%, #4d82bc 100%);
+    --gradient-secondary: linear-gradient(135deg, #84b6f4 0%, #c4dafa 100%);
+    --shadow-light: 0 2px 10px rgba(0,81,135,0.1);
+    --shadow-medium: 0 5px 25px rgba(0,81,135,0.15);
+    --shadow-heavy: 0 10px 40px rgba(0,81,135,0.2);
+}
+
+/* ============================================ */
+/* Drop Zone Styles */
+/* ============================================ */
+
+.file-upload-component .drop-zone {
+    border: 3px dashed var(--accent-color);
+    background: linear-gradient(135deg, rgba(196, 218, 250, 0.1) 0%, rgba(252, 255, 255, 0.3) 100%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.file-upload-component .drop-zone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(132, 182, 244, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.file-upload-component .drop-zone:hover {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(132, 182, 244, 0.15) 0%, rgba(196, 218, 250, 0.25) 100%);
+    transform: scale(1.01);
+    box-shadow: var(--shadow-medium);
+}
+
+.file-upload-component .drop-zone:hover::before {
+    left: 100%;
+}
+
+.file-upload-component .drop-zone.dragging {
+    border-color: var(--success-color);
+    border-style: solid;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(132, 182, 244, 0.2) 100%);
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(40, 167, 69, 0.3);
+}
+
+.file-upload-component .drop-zone.touch-device {
+    border-style: solid;
+    border-width: 2px;
+    background: linear-gradient(135deg, rgba(132, 182, 244, 0.08) 0%, rgba(252, 255, 255, 0.2) 100%);
+}
+
+.file-upload-component .drop-zone .card-body {
+    position: relative;
+    z-index: 1;
+}
+
+.file-upload-component .drop-zone i {
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 81, 135, 0.2));
+}
+
+.file-upload-component .drop-zone:hover i {
+    color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+.file-upload-component .drop-zone.dragging i {
+    color: var(--success-color);
+    transform: scale(1.2) rotate(5deg);
+}
+
+.file-upload-component .drop-zone h5 {
+    color: var(--primary-color);
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.file-upload-component .drop-zone p {
+    color: var(--secondary-color);
+    font-size: 0.95rem;
+}
+
+.file-upload-component .drop-zone .badge {
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow-light);
+}
+
+/* ============================================ */
+/* Preferences Card */
+/* ============================================ */
+
+.file-upload-component .card-header {
+    background: var(--gradient-secondary);
+    color: var(--primary-color);
+    font-weight: 600;
+    border: none;
+    padding: 0.75rem 1.25rem;
+}
+
+.file-upload-component .card-header small {
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+}
+
+.file-upload-component .btn-primary,
+.file-upload-component .btn-outline-primary {
+    background: var(--gradient-primary);
+    border: 2px solid var(--primary-color);
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+}
+
+.file-upload-component .btn-primary:hover {
+    background: linear-gradient(135deg, #003d6b 0%, #3a6a9e 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.file-upload-component .btn-outline-primary {
+    background: transparent;
+    color: var(--primary-color);
+}
+
+.file-upload-component .btn-outline-primary:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.file-upload-component .btn-outline-primary i {
+    transition: transform 0.3s ease;
+}
+
+.file-upload-component .btn-outline-primary:hover i {
+    transform: scale(1.1);
+}
+
+/* ============================================ */
+/* File Cards */
+/* ============================================ */
+
+.file-upload-component .file-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid var(--light-accent);
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+}
+
+.file-upload-component .file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--accent-color);
+}
+
+.file-upload-component .preview-container {
+    position: relative;
+    overflow: hidden;
+    background: var(--gradient-secondary);
+}
+
+.file-upload-component .preview-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 81, 135, 0.1) 100%);
+    pointer-events: none;
+}
+
+.file-upload-component .preview-container img {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.file-upload-component .preview-container:hover img {
+    transform: scale(1.15);
+}
+
+.file-upload-component .file-card .card-body {
+    padding: 1rem;
+}
+
+.file-upload-component .file-card small {
+    color: var(--secondary-color);
+}
+
+.file-upload-component .file-card .btn-link {
+    color: var(--danger-color);
+    transition: all 0.2s ease;
+}
+
+.file-upload-component .file-card .btn-link:hover {
+    color: #bd2130;
+    transform: scale(1.2);
+}
+
+/* ============================================ */
+/* Progress Bar */
+/* ============================================ */
+
+.file-upload-component .progress {
+    height: 8px;
+    border-radius: 10px;
+    background-color: var(--light-accent);
+    overflow: hidden;
+}
+
+.file-upload-component .progress-bar {
+    background: var(--gradient-primary);
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-upload-component .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.file-upload-component .progress-bar.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+/* ============================================ */
+/* Badges */
+/* ============================================ */
+
+.file-upload-component .badge {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 15px;
+}
+
+.file-upload-component .badge.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.file-upload-component .badge.bg-info {
+    background: var(--gradient-primary);
+    box-shadow: 0 2px 8px rgba(0, 81, 135, 0.3);
+}
+
+/* ============================================ */
+/* Upload Button */
+/* ============================================ */
+
+.file-upload-component .btn-outline-primary.w-100 {
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 0.6rem;
+}
+
+.file-upload-component .btn-outline-danger {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.file-upload-component .btn-outline-danger:hover {
+    background: var(--danger-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* ============================================ */
+/* Session Info Card */
+/* ============================================ */
+
+.file-upload-component .bg-light {
+    background: linear-gradient(135deg, rgba(196, 218, 250, 0.2) 0%, rgba(252, 255, 255, 0.5) 100%) !important;
+    border: 1px solid var(--light-accent);
+    border-radius: 10px;
+}
+
+.file-upload-component .bg-light .card-body {
+    padding: 0.75rem 1rem;
+}
+
+.file-upload-component .text-muted {
+    color: var(--secondary-color) !important;
+}
+
+.file-upload-component .text-muted strong {
+    color: var(--primary-color);
+}
+
+.file-upload-component .text-muted i {
+    color: var(--accent-color);
+}
+
+/* ============================================ */
+/* Responsive Design */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .file-upload-component .drop-zone .card-body {
+        padding: 2rem 1rem !important;
+    }
+
+    .file-upload-component .drop-zone h5 {
+        font-size: 1rem;
+    }
+
+    .file-upload-component .drop-zone i {
+        font-size: 2rem !important;
+    }
+
+    .file-upload-component .drop-zone p {
+        font-size: 0.85rem;
+    }
+
+    .file-upload-component .file-card {
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-component .btn-sm {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.8rem;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .file-upload-component .file-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .file-upload-component .drop-zone {
+        border-width: 2px;
+    }
+
+    .file-upload-component .drop-zone .card-body {
+        padding: 1.5rem 0.75rem !important;
+    }
+
+    .file-upload-component .drop-zone h5 {
+        font-size: 0.9rem;
+    }
+
+    .file-upload-component .drop-zone i {
+        font-size: 1.8rem !important;
+    }
+
+    .file-upload-component .preview-container {
+        height: 120px !important;
+    }
+
+    .file-upload-component .card-header {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .file-upload-component .btn-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .file-upload-component .btn-group .btn {
+        width: 100%;
+    }
+}
+
+/* ============================================ */
+/* Animations */
+/* ============================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.file-upload-component .file-card {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.file-upload-component .drop-zone.dragging {
+    animation: pulse 1s infinite;
+}
+
+/* ============================================ */
+/* Touch Device Enhancements */
+/* ============================================ */
+
+.file-upload-component .drop-zone.touch-device:active {
+    transform: scale(0.98);
+    background: linear-gradient(135deg, rgba(132, 182, 244, 0.2) 0%, rgba(196, 218, 250, 0.3) 100%);
+}
+
+/* ============================================ */
+/* Loading State */
+/* ============================================ */
+
+.file-upload-component .progress-bar:not(.bg-success) {
+    position: relative;
+}
+
+.file-upload-component .progress-bar:not(.bg-success)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+    );
+    animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ============================================ */
+/* Accessibility */
+/* ============================================ */
+
+.file-upload-component .drop-zone:focus-within {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.file-upload-component .btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 81, 135, 0.25);
+}
+
+/* ============================================ */
+/* Print Styles */
+/* ============================================ */
+
+@media print {
+    .file-upload-component {
+        display: none;
+    }
+}
