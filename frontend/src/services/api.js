@@ -43,6 +43,9 @@ export const authAPI = {
   getProfile: () =>
     api.get('/api/auth/profile'),
   
+  updateProfile: (userData) =>
+    api.put('/api/users/profile/me', userData),
+  
   logout: () =>
     api.post('/api/auth/logout'),
 };

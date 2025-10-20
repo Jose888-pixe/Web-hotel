@@ -153,6 +153,21 @@ h6 {
     display: none;
 }
 
+.password-toggle-btn {
+    border: none !important;
+    background: transparent !important;
+    color: #6c757d;
+    padding: 0.375rem 0.75rem;
+}
+
+.password-toggle-btn:hover {
+    color: #495057;
+}
+
+.password-toggle-btn:focus {
+    box-shadow: none !important;
+}
+
 /* Navigation */
 .navbar {
     background: rgba(0, 81, 135, 0.95);

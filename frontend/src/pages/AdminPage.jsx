@@ -62,6 +62,7 @@ const AdminPage = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordUser, setPasswordUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
+  const [showUserPassword, setShowUserPassword] = useState(false);
   
   // WebStorage hooks para persistencia
   const { preferences, updatePreference } = useUserPreferences();
@@ -687,12 +688,20 @@ const AdminPage = () => {
       </Modal>
 
       {/* User Modal */}
-      <Modal show={showUserModal} onHide={() => setShowUserModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>{editingUser ? 'Editar Usuario' : 'Agregar Usuario'}</Modal.Title>
+      <Modal show={showUserModal} onHide={() => setShowUserModal(false)} size="lg">
+        <Modal.Header closeButton className="bg-primary text-white">
+          <Modal.Title>
+            <i className={`fas ${editingUser ? 'fa-user-edit' : 'fa-user-plus'} me-2`}></i>
+            {editingUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUserSubmit}>
+            {/* Información Personal */}
+            <h6 className="mb-3 text-primary border-bottom pb-2">
+              <i className="fas fa-user me-2"></i>
+              Información Personal
+            </h6>
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
@@ -702,6 +711,7 @@ const AdminPage = () => {
                     value={userFormData.firstName}
                     onChange={(e) => setUserFormData({...userFormData, firstName: e.target.value})}
                     required
+                    placeholder="Ej: Juan"
                   />
                 </Form.Group>
               </Col>
@@ -713,61 +723,113 @@ const AdminPage = () => {
                     value={userFormData.lastName}
                     onChange={(e) => setUserFormData({...userFormData, lastName: e.target.value})}
                     required
+                    placeholder="Ej: Pérez"
                   />
                 </Form.Group>
               </Col>
             </Row>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Email *</Form.Label>
-              <Form.Control
-                type="email"
-                value={userFormData.email}
-                onChange={(e) => setUserFormData({...userFormData, email: e.target.value})}
-                required
-              />
-            </Form.Group>
+            {/* Información de Contacto */}
+            <h6 className="mb-3 text-primary border-bottom pb-2 mt-3">
+              <i className="fas fa-envelope me-2"></i>
+              Información de Contacto
+            </h6>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email *</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={userFormData.email}
+                    onChange={(e) => setUserFormData({...userFormData, email: e.target.value})}
+                    required
+                    placeholder="usuario@ejemplo.com"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Teléfono</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    value={userFormData.phone}
+                    onChange={(e) => setUserFormData({...userFormData, phone: e.target.value})}
+                    placeholder="+1 234 567 8900"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Contraseña {editingUser ? '(dejar vacío para no cambiar)' : '*'}</Form.Label>
-              <Form.Control
-                type="password"
-                value={userFormData.password}
-                onChange={(e) => setUserFormData({...userFormData, password: e.target.value})}
-                required={!editingUser}
-                minLength={6}
-                placeholder={editingUser ? 'Dejar vacío para mantener la actual' : 'Mínimo 6 caracteres'}
-              />
-            </Form.Group>
+            {/* Seguridad y Acceso */}
+            <h6 className="mb-3 text-primary border-bottom pb-2 mt-3">
+              <i className="fas fa-lock me-2"></i>
+              Seguridad y Acceso
+            </h6>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Contraseña {editingUser ? '(opcional)' : '*'}</Form.Label>
+                  <div className="position-relative">
+                    <Form.Control
+                      type={showUserPassword ? "text" : "password"}
+                      value={userFormData.password}
+                      onChange={(e) => setUserFormData({...userFormData, password: e.target.value})}
+                      required={!editingUser}
+                      minLength={6}
+                      placeholder={editingUser ? 'Dejar vacío para no cambiar' : 'Mínimo 6 caracteres'}
+                    />
+                    <Button
+                      variant="link"
+                      className="position-absolute top-50 end-0 translate-middle-y password-toggle-btn"
+                      onClick={() => setShowUserPassword(!showUserPassword)}
+                      type="button"
+                      tabIndex="-1"
+                    >
+                      <i className={`fas ${showUserPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                    </Button>
+                  </div>
+                  {!editingUser && (
+                    <Form.Text className="text-muted">
+                      <i className="fas fa-info-circle me-1"></i>
+                      La contraseña debe tener al menos 6 caracteres
+                    </Form.Text>
+                  )}
+                  {editingUser && (
+                    <Form.Text className="text-muted">
+                      <i className="fas fa-info-circle me-1"></i>
+                      Dejar vacío para mantener la contraseña actual
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Nivel de Acceso *</Form.Label>
+                  <Form.Select
+                    value={userFormData.role}
+                    onChange={(e) => setUserFormData({...userFormData, role: e.target.value})}
+                    required
+                  >
+                    <option value="visitor">👤 Visitante - Puede hacer reservas</option>
+                    <option value="operator">👨‍💼 Operador - Gestiona reservas y habitaciones</option>
+                    <option value="admin">👑 Administrador - Acceso total</option>
+                  </Form.Select>
+                  <Form.Text className="text-muted">
+                    <i className="fas fa-shield-alt me-1"></i>
+                    Define los permisos del usuario en el sistema
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Teléfono</Form.Label>
-              <Form.Control
-                type="tel"
-                value={userFormData.phone}
-                onChange={(e) => setUserFormData({...userFormData, phone: e.target.value})}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Rol *</Form.Label>
-              <Form.Select
-                value={userFormData.role}
-                onChange={(e) => setUserFormData({...userFormData, role: e.target.value})}
-                required
-              >
-                <option value="visitor">Visitante</option>
-                <option value="operator">Operador</option>
-                <option value="admin">Administrador</option>
-              </Form.Select>
-            </Form.Group>
-
-            <div className="d-flex justify-content-end gap-2">
+            <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
               <Button variant="secondary" onClick={() => setShowUserModal(false)}>
+                <i className="fas fa-times me-2"></i>
                 Cancelar
               </Button>
               <Button variant="primary" type="submit">
-                {editingUser ? 'Actualizar' : 'Crear'}
+                <i className={`fas ${editingUser ? 'fa-save' : 'fa-user-plus'} me-2`}></i>
+                {editingUser ? 'Actualizar Usuario' : 'Crear Usuario'}
               </Button>
             </div>
           </Form>
@@ -1679,10 +1741,13 @@ const ReservationsSection = ({ reservations, loading, onDelete, onUpdateStatus, 
 
 const UsersSection = ({ users, loading, onAdd, onEdit, onChangePassword, onDelete }) => (
   <div>
-    <div className="d-flex justify-content-between align-items-center mb-4">
-      <h2>Usuarios</h2>
-      <Button variant="primary" onClick={onAdd}>
-        <i className="fas fa-plus me-2"></i>Agregar Usuario
+    <div className="d-flex justify-content-between align-items-center users-section-header">
+      <h2 className="users-section-title">
+        <i className="fas fa-users me-2"></i>
+        Usuarios
+      </h2>
+      <Button variant="primary" onClick={onAdd} size="lg">
+        <i className="fas fa-user-plus me-2"></i>Agregar Usuario
       </Button>
     </div>
     

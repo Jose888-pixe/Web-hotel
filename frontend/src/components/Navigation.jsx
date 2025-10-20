@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import LoginModal from './LoginModal';
+import UserProfileModal from './UserProfileModal';
 
 const Navigation = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -63,21 +65,29 @@ const Navigation = () => {
                   id="user-dropdown"
                   align="end"
                 >
+                  <NavDropdown.Item onClick={() => setShowProfileModal(true)}>
+                    <i className="fas fa-user me-2"></i>
+                    Mi Perfil
+                  </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/reservations">
+                    <i className="fas fa-calendar-alt me-2"></i>
                     Mis Reservas
                   </NavDropdown.Item>
                   {user.role === 'admin' && (
                     <NavDropdown.Item as={Link} to="/admin">
+                      <i className="fas fa-cog me-2"></i>
                       Panel de Administración
                     </NavDropdown.Item>
                   )}
                   {user.role === 'operator' && (
                     <NavDropdown.Item as={Link} to="/operator">
+                      <i className="fas fa-tasks me-2"></i>
                       Panel de Operador
                     </NavDropdown.Item>
                   )}
                   <NavDropdown.Divider />
                   <NavDropdown.Item onClick={handleLogout}>
+                    <i className="fas fa-sign-out-alt me-2"></i>
                     Cerrar Sesión
                   </NavDropdown.Item>
                 </NavDropdown>
@@ -97,6 +107,10 @@ const Navigation = () => {
       <LoginModal 
         show={showLoginModal} 
         onHide={() => setShowLoginModal(false)} 
+      />
+      <UserProfileModal
+        show={showProfileModal}
+        onHide={() => setShowProfileModal(false)}
       />
     </>
   );

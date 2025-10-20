@@ -12,6 +12,8 @@ const RegisterModal = ({ show, onHide, onSuccess }) => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -143,23 +145,45 @@ const RegisterModal = ({ show, onHide, onSuccess }) => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Contraseña</Form.Label>
-            <Form.Control
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="position-relative">
+              <Form.Control
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <Button
+                variant="link"
+                className="position-absolute top-50 end-0 translate-middle-y password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                type="button"
+                tabIndex="-1"
+              >
+                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              </Button>
+            </div>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Confirmar Contraseña</Form.Label>
-            <Form.Control
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
+            <div className="position-relative">
+              <Form.Control
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+              <Button
+                variant="link"
+                className="position-absolute top-50 end-0 translate-middle-y password-toggle-btn"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                type="button"
+                tabIndex="-1"
+              >
+                <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              </Button>
+            </div>
           </Form.Group>
           <div className="d-grid">
             <Button type="submit" variant="primary" disabled={loading}>

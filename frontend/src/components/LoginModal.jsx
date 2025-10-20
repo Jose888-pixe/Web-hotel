@@ -9,6 +9,7 @@ const LoginModal = ({ show, onHide }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,12 +57,23 @@ const LoginModal = ({ show, onHide }) => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Contraseña</Form.Label>
-              <Form.Control
-                type="password"
-                value={credentials.password}
-                onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-                required
-              />
+              <div className="position-relative">
+                <Form.Control
+                  type={showPassword ? "text" : "password"}
+                  value={credentials.password}
+                  onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+                  required
+                />
+                <Button
+                  variant="link"
+                  className="position-absolute top-50 end-0 translate-middle-y password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  type="button"
+                  tabIndex="-1"
+                >
+                  <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </Button>
+              </div>
             </Form.Group>
             <div className="d-grid">
               <Button type="submit" variant="primary" disabled={loading}>

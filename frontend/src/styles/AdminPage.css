@@ -816,6 +816,40 @@
 }
 
 /* ============================================ */
+/* Password Toggle Button */
+/* ============================================ */
+
+.password-toggle-btn {
+    border: none !important;
+    background: transparent !important;
+    color: #6c757d;
+    padding: 0.375rem 0.75rem;
+}
+
+.password-toggle-btn:hover {
+    color: #495057;
+}
+
+.password-toggle-btn:focus {
+    box-shadow: none !important;
+}
+
+/* ============================================ */
+/* Users Section */
+/* ============================================ */
+
+.users-section-header {
+    margin-top: 50px;
+    margin-bottom: 1.5rem;
+    padding-top: 20px;
+}
+
+.users-section-title {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* ============================================ */
 /* Rooms Section */
 /* ============================================ */
 

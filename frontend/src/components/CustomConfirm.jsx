@@ -69,10 +69,10 @@ const CustomConfirm = ({
     >
       <Modal.Body className="text-center p-4">
         <div 
-          className={`confirm-icon-wrapper confirm-icon-wrapper-${variant} mb-3`}
+          className={`confirm-icon-wrapper confirm-icon-wrapper-${type} mb-3`}
         >
           <i 
-            className={`fas ${getIcon()} confirm-icon confirm-icon-${variant}`}
+            className={`fas ${getIcon()} confirm-icon confirm-icon-${type}`}
           ></i>
         </div>
         

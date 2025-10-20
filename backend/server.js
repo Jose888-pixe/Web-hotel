@@ -1239,6 +1239,64 @@ app.put('/api/users/:id', authenticateToken, validateId, validateEmail, async (r
   }
 });
 
+// Update own profile (any authenticated user)
+app.put('/api/users/profile/me', authenticateToken, validateEmail, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { firstName, lastName, email, phone, password, street, city, state, zipCode, country } = req.body;
+
+    // Actualizar campos permitidos
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) {
+      // Verificar que el email no esté en uso por otro usuario
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser && existingUser.id !== user.id) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+      user.email = email;
+    }
+    if (phone) user.phone = phone;
+    if (password) user.password = password; // Se hasheará automáticamente por el hook beforeSave
+    
+    // Actualizar dirección
+    if (street !== undefined) user.street = street;
+    if (city !== undefined) user.city = city;
+    if (state !== undefined) user.state = state;
+    if (zipCode !== undefined) user.zipCode = zipCode;
+    if (country !== undefined) user.country = country;
+
+    await user.save();
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        street: user.street,
+        city: user.city,
+        state: user.state,
+        zipCode: user.zipCode,
+        country: user.country
+      }
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    res.status(500).json({ message: 'Server error updating profile' });
+  }
+});
+
 // Delete user (admin only)
 app.delete('/api/users/:id', authenticateToken, validateId, async (req, res) => {
   try {
