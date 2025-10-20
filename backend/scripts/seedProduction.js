@@ -48,7 +48,11 @@ const seedProduction = async () => {
         capacity: 1,
         size: 20,
         features: { wifi: true, tv: true, airConditioning: true, safe: true, roomService: true },
-        images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=80'],
+        images: [
+          'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=80',
+          'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=1200&q=80',
+          'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1200&q=80'
+        ],
         count: 5,
         startNumber: 101,
         floors: [1, 1, 2, 2, 3]
@@ -61,7 +65,12 @@ const seedProduction = async () => {
         capacity: 2,
         size: 32,
         features: { wifi: true, tv: true, airConditioning: true, safe: true, minibar: true, roomService: true },
-        images: ['https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1200&q=80'],
+        images: [
+          'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1200&q=80',
+          'https://images.unsplash.com/photo-1590490359683-658d3d23f972?w=1200&q=80',
+          'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80',
+          'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200&q=80'
+        ],
         count: 6,
         startNumber: 201,
         floors: [2, 2, 2, 3, 3, 3]
@@ -74,7 +83,12 @@ const seedProduction = async () => {
         capacity: 3,
         size: 55,
         features: { wifi: true, tv: true, airConditioning: true, safe: true, minibar: true, balcony: true, cityView: true, roomService: true, breakfast: true, parking: true },
-        images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80'],
+        images: [
+          'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80',
+          'https://images.unsplash.com/photo-1591088398332-8a7791972843?w=1200&q=80',
+          'https://images.unsplash.com/photo-1615873968403-89e068629265?w=1200&q=80',
+          'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=80'
+        ],
         count: 3,
         startNumber: 301,
         floors: [3, 4, 4]
@@ -87,7 +101,13 @@ const seedProduction = async () => {
         capacity: 4,
         size: 120,
         features: { wifi: true, tv: true, airConditioning: true, safe: true, minibar: true, balcony: true, oceanView: true, cityView: true, jacuzzi: true, roomService: true, breakfast: true, parking: true },
-        images: ['https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80'],
+        images: [
+          'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80',
+          'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200&q=80',
+          'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1200&q=80',
+          'https://images.unsplash.com/photo-1631049552240-59c37f38802b?w=1200&q=80',
+          'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&q=80'
+        ],
         count: 1,
         startNumber: 501,
         floors: [5]

@@ -33,7 +33,7 @@ const PaymentModal = ({ show, onHide, reservation, onPaymentSuccess }) => {
     try {
       const paymentPayload = {
         reservationId: reservation.id,
-        amount: parseFloat(paymentData.amount),
+        amount: parseFloat(paymentData.amount) || 0,
         paymentMethod: paymentData.paymentMethod
       };
 

@@ -107,10 +107,10 @@ const AddRoomModal = ({ show, onHide, onRoomAdded }) => {
       // Preparar datos para enviar
       const roomData = {
         ...formData,
-        price: parseFloat(formData.price),
-        capacity: parseInt(formData.capacity),
-        size: parseFloat(formData.size),
-        floor: parseInt(formData.floor),
+        price: parseFloat(formData.price) || 0,
+        capacity: parseInt(formData.capacity) || 1,
+        size: parseFloat(formData.size) || 0,
+        floor: parseInt(formData.floor) || 1,
         images: selectedFiles, // Archivos seleccionados
         status: 'available',
         isActive: true

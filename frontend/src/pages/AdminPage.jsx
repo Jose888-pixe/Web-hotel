@@ -1150,11 +1150,11 @@ const DashboardSection = ({ rooms = [], reservations = [], users = [], loading }
   
   const totalRevenue = reservations
     .filter(r => r.paymentStatus === 'paid')
-    .reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+    .reduce((sum, r) => sum + (parseFloat(r.totalAmount) || 0), 0);
   
   const pendingPayments = reservations
     .filter(r => r.paymentStatus === 'pending')
-    .reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+    .reduce((sum, r) => sum + (parseFloat(r.totalAmount) || 0), 0);
   
   // Reservas por estado
   const confirmedCount = reservations.filter(r => r.status === 'confirmed').length;
@@ -1271,8 +1271,8 @@ const DashboardSection = ({ rooms = [], reservations = [], users = [], loading }
                       <strong>{availableRooms}</strong>
                     </div>
                     <div className="progress mb-3 progress-bar-large">
-                      <div className="progress-bar bg-success" style={{width: `${(availableRooms/totalRooms)*100}%`}}>
-                        {((availableRooms/totalRooms)*100).toFixed(0)}%
+                      <div className="progress-bar bg-success" style={{width: `${totalRooms > 0 ? (availableRooms/totalRooms)*100 : 0}%`}}>
+                        {totalRooms > 0 ? ((availableRooms/totalRooms)*100).toFixed(0) : '0'}%
                       </div>
                     </div>
                   </div>
@@ -1283,8 +1283,8 @@ const DashboardSection = ({ rooms = [], reservations = [], users = [], loading }
                       <strong>{occupiedRooms}</strong>
                     </div>
                     <div className="progress mb-3 progress-bar-large">
-                      <div className="progress-bar bg-danger" style={{width: `${(occupiedRooms/totalRooms)*100}%`}}>
-                        {((occupiedRooms/totalRooms)*100).toFixed(0)}%
+                      <div className="progress-bar bg-danger" style={{width: `${totalRooms > 0 ? (occupiedRooms/totalRooms)*100 : 0}%`}}>
+                        {totalRooms > 0 ? ((occupiedRooms/totalRooms)*100).toFixed(0) : '0'}%
                       </div>
                     </div>
                   </div>
@@ -1295,8 +1295,8 @@ const DashboardSection = ({ rooms = [], reservations = [], users = [], loading }
                       <strong>{maintenanceRooms}</strong>
                     </div>
                     <div className="progress progress-bar-large">
-                      <div className="progress-bar bg-warning" style={{width: `${(maintenanceRooms/totalRooms)*100}%`}}>
-                        {((maintenanceRooms/totalRooms)*100).toFixed(0)}%
+                      <div className="progress-bar bg-warning" style={{width: `${totalRooms > 0 ? (maintenanceRooms/totalRooms)*100 : 0}%`}}>
+                        {totalRooms > 0 ? ((maintenanceRooms/totalRooms)*100).toFixed(0) : '0'}%
                       </div>
                     </div>
                   </div>
@@ -1390,17 +1390,17 @@ const DashboardSection = ({ rooms = [], reservations = [], users = [], loading }
                     <tr>
                       <td><Badge bg="danger">Administradores</Badge></td>
                       <td className="text-end">{adminCount}</td>
-                      <td className="text-end">{((adminCount/users.length)*100).toFixed(1)}%</td>
+                      <td className="text-end">{users.length > 0 ? ((adminCount/users.length)*100).toFixed(1) : '0'}%</td>
                     </tr>
                     <tr>
                       <td><Badge bg="warning">Operadores</Badge></td>
                       <td className="text-end">{operatorCount}</td>
-                      <td className="text-end">{((operatorCount/users.length)*100).toFixed(1)}%</td>
+                      <td className="text-end">{users.length > 0 ? ((operatorCount/users.length)*100).toFixed(1) : '0'}%</td>
                     </tr>
                     <tr>
                       <td><Badge bg="primary">Visitantes</Badge></td>
                       <td className="text-end">{visitorCount}</td>
-                      <td className="text-end">{((visitorCount/users.length)*100).toFixed(1)}%</td>
+                      <td className="text-end">{users.length > 0 ? ((visitorCount/users.length)*100).toFixed(1) : '0'}%</td>
                     </tr>
                     <tr className="table-active">
                       <td><strong>Total</strong></td>

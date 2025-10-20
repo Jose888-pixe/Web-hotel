@@ -181,7 +181,7 @@ const OperatorPage = () => {
         },
         body: JSON.stringify({
           reservationId: selectedReservation.id,
-          amount: parseFloat(paymentData.amount),
+          amount: parseFloat(paymentData.amount) || 0,
           method: paymentData.method
         })
       });

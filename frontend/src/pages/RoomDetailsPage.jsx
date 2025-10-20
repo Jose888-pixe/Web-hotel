@@ -261,7 +261,7 @@ const RoomDetailsPage = () => {
                     </div>
                     <div className="text-end">
                       <h2 className="text-primary mb-0">
-                        ${parseFloat(room.price).toFixed(2)}
+                        ${(parseFloat(room.price) || 0).toFixed(2)}
                       </h2>
                       <small className="text-muted">por noche</small>
                     </div>
@@ -377,7 +377,7 @@ const RoomDetailsPage = () => {
                   <div className="price-summary mb-3">
                     <div className="d-flex justify-content-between mb-2">
                       <span>Precio por noche:</span>
-                      <strong>${parseFloat(room.price).toFixed(2)}</strong>
+                      <strong>${(parseFloat(room.price) || 0).toFixed(2)}</strong>
                     </div>
                   </div>
 
