@@ -994,11 +994,12 @@ const cleanupPastReservations = async () => {
       }
     });
 
-    // Update unpaid reservations that passed checkout to "payment-pending"
+    // Cancel unpaid reservations that passed checkout
     const updatedUnpaidCount = await Reservation.update(
       { 
-        status: 'payment-pending',
-        paymentStatus: 'pending'
+        status: 'cancelled',
+        paymentStatus: 'pending',
+        cancellationReason: 'Auto-cancelled: Payment not received after checkout date'
       },
       {
         where: {
@@ -1010,7 +1011,7 @@ const cleanupPastReservations = async () => {
     );
 
     if (deletedPaidCount > 0 || updatedUnpaidCount[0] > 0) {
-      console.log(`🧹 Auto-cleanup: Deleted ${deletedPaidCount} paid reservations, Updated ${updatedUnpaidCount[0]} unpaid to payment-pending`);
+      console.log(`🧹 Auto-cleanup: Deleted ${deletedPaidCount} paid reservations, Cancelled ${updatedUnpaidCount[0]} unpaid reservations`);
     }
   } catch (error) {
     console.error('Auto-cleanup error:', error);
