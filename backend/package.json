@@ -8,6 +8,9 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "seed": "node scripts/seedDataMultiple.js",
+    "export": "node scripts/exportData.js",
+    "import": "node scripts/importData.js",
+    "migrate": "npm run export && npm run import",
     "build": "cd hotel-react && npm run build",
     "build:prod": "npm run build && npm run start:prod",
     "start:prod": "set NODE_ENV=production && node server.js"
