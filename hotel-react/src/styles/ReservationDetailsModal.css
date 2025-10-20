@@ -1,0 +1,208 @@
+/* Reservation Details Modal - Azure Suites Theme */
+
+.reservation-details-modal .modal-content {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.reservation-details-modal .modal-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  border-radius: 16px 16px 0 0;
+  padding: 1.5rem;
+}
+
+.reservation-details-modal .modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.reservation-details-modal .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.reservation-details-modal .btn-close:hover {
+  opacity: 1;
+}
+
+/* Reservation Number Section */
+.reservation-number-section .bg-light {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border: 2px dashed #3b82f6;
+}
+
+.reservation-number-section h4 {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+/* Info Sections */
+.info-section {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+}
+
+.section-title {
+  color: #1e3a8a;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Info Items */
+.info-item {
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Date Cards */
+.date-card {
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.date-card.check-in {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-left: 4px solid #10b981;
+}
+
+.date-card.check-out {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 4px solid #f59e0b;
+}
+
+.date-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.date-card.check-in .date-icon {
+  background-color: #10b981;
+  color: white;
+}
+
+.date-card.check-out .date-icon {
+  background-color: #f59e0b;
+  color: white;
+}
+
+/* Badges */
+.status-badge,
+.payment-badge,
+.nights-badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.nights-badge {
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+}
+
+/* Total Amount Card */
+.total-amount-card {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.total-label {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.total-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Special Requests Box */
+.special-requests-box {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-style: italic;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reservation-details-modal .modal-header {
+    padding: 1rem;
+  }
+  
+  .reservation-details-modal .modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .date-card {
+    padding: 0.75rem;
+  }
+  
+  .date-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .total-value {
+    font-size: 1.5rem;
+  }
+  
+  .info-section {
+    padding: 0.75rem;
+  }
+}
+
+/* Animation */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reservation-details-modal .modal-content {
+  animation: modalFadeIn 0.3s ease-out;
+}

@@ -24,11 +24,10 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// NOTE: Frontend is deployed separately as a Static Site on Render
-// No need to serve static files from backend
-// if (process.env.NODE_ENV === 'production') {
-//   app.use(express.static(path.join(__dirname, 'hotel-react/build')));
-// }
+// Serve static files from React build in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'hotel-react/build')));
+}
 
 // Simple auth middleware
 const authenticateToken = async (req, res, next) => {
@@ -1388,20 +1387,24 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API catch-all route - Frontend is deployed separately
+// Catch-all route - Serve React app in production
 app.get('*', (req, res) => {
   // Only handle API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ message: 'API endpoint not found' });
   }
   
-  // For non-API routes, return a message
-  // Frontend is deployed as a separate Static Site on Render
-  res.json({ 
-    message: 'Hotel API Backend',
-    status: 'Backend is running',
-    note: 'Frontend is deployed separately at the Static Site URL'
-  });
+  // In production, serve the React app
+  if (process.env.NODE_ENV === 'production') {
+    res.sendFile(path.join(__dirname, 'hotel-react/build', 'index.html'));
+  } else {
+    // In development, return a message
+    res.json({ 
+      message: 'Hotel API Backend',
+      status: 'Backend is running in development mode',
+      note: 'Frontend should be running on http://localhost:3003'
+    });
+  }
 });
 
 // Contact routes

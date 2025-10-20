@@ -23,6 +23,21 @@ body {
     color: var(--text-dark);
 }
 
+/* Scroll offset para navbar fixed */
+html {
+    scroll-padding-top: 80px; /* Altura del navbar */
+}
+
+/* Padding top para todas las páginas (excepto HomePage que tiene hero) */
+.page-container {
+    padding-top: 100px;
+}
+
+/* Offset para secciones con anchor links en HomePage */
+section[id] {
+    scroll-margin-top: 80px;
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
     font-weight: 600;
@@ -105,6 +120,7 @@ h1, h2, h3, h4, h5, h6 {
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 26, 26, 0.3) 100%);
+    pointer-events: none; /* Permitir clics a través del overlay */
 }
 
 .hero-title {
@@ -125,7 +141,18 @@ h1, h2, h3, h4, h5, h6 {
     padding: 12px 30px;
     font-weight: 600;
     border-radius: 50px;
+    cursor: pointer !important;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.hero-buttons .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.hero-buttons .btn:active {
+    transform: translateY(-1px);
 }
 
 .btn-primary {
@@ -179,9 +206,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Rooms Section */
-#rooms {
-    padding-top: 120px;
-}
+/* padding-top eliminado - se usa scroll-margin-top global */
 
 .room-filters {
     display: flex;

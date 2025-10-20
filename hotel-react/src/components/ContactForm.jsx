@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-import { contactAPI } from '../services/api';
 
 const ContactForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({

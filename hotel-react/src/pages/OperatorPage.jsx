@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Table, Badge, Modal, Form, Alert } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import CustomAlert from '../components/CustomAlert';
+import ReservationDetailsModal from '../components/ReservationDetailsModal';
 
 const OperatorPage = () => {
   const [reservations, setReservations] = useState([]);
@@ -16,6 +18,9 @@ const OperatorPage = () => {
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [maintenanceDate, setMaintenanceDate] = useState('');
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedReservationDetails, setSelectedReservationDetails] = useState(null);
+  const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
 
   const { user } = useAuth();
 
@@ -73,13 +78,14 @@ const OperatorPage = () => {
 
       if (response.ok) {
         loadReservations();
-        alert('Estado de reserva actualizado correctamente');
+        setAlert({ show: true, variant: 'success', message: 'Estado de reserva actualizado correctamente' });
+        setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
       } else {
-        alert('Error al actualizar la reserva');
+        setAlert({ show: true, variant: 'danger', message: 'Error al actualizar la reserva' });
       }
     } catch (err) {
       console.error('Error updating reservation:', err);
-      alert('Error al actualizar la reserva');
+      setAlert({ show: true, variant: 'danger', message: 'Error al actualizar la reserva' });
     }
   };
 
@@ -99,14 +105,15 @@ const OperatorPage = () => {
 
       if (response.ok) {
         loadReservations();
-        alert('Reserva eliminada correctamente');
+        setAlert({ show: true, variant: 'success', message: 'Reserva eliminada correctamente' });
+        setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
       } else {
         const data = await response.json();
-        alert(data.message || 'Error al eliminar la reserva');
+        setAlert({ show: true, variant: 'danger', message: data.message || 'Error al eliminar la reserva' });
       }
     } catch (err) {
       console.error('Error deleting reservation:', err);
-      alert('Error al eliminar la reserva');
+      setAlert({ show: true, variant: 'danger', message: 'Error al eliminar la reserva' });
     }
   };
 
@@ -118,39 +125,12 @@ const OperatorPage = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        const reservation = data.reservation;
-        const details = `
-Detalles de la Reserva
-
-Número de Reserva: ${reservation.reservationNumber}
-Huésped: ${reservation.guestFirstName} ${reservation.guestLastName}
-Email: ${reservation.guestEmail}
-Teléfono: ${reservation.guestPhone}
-
-Habitación: ${reservation.room?.number} - ${reservation.room?.name}
-Tipo: ${reservation.room?.type}
-
-Check-in: ${new Date(reservation.checkIn).toLocaleDateString()}
-Check-out: ${new Date(reservation.checkOut).toLocaleDateString()}
-Adultos: ${reservation.adults}
-Niños: ${reservation.children}
-
-Estado: ${reservation.status}
-Estado de Pago: ${reservation.paymentStatus}
-Total: $${reservation.totalAmount}
-
-${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRequests}` : ''}
-        `;
-        alert(details);
-      } else {
-        alert('Error al cargar los detalles de la reserva');
-      }
+      const data = await response.json();
+      setSelectedReservationDetails(data.reservation);
+      setShowDetailsModal(true);
     } catch (err) {
       console.error('Error loading reservation details:', err);
-      alert('Error al cargar los detalles de la reserva');
+      setAlert({ show: true, variant: 'danger', message: 'Error al cargar los detalles de la reserva' });
     }
   };
 
@@ -168,13 +148,14 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
 
       if (response.ok) {
         loadRooms();
-        alert('Estado de habitación actualizado correctamente');
+        setAlert({ show: true, variant: 'success', message: 'Estado de habitación actualizado correctamente' });
+        setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
       } else {
-        alert('Error al actualizar la habitación');
+        setAlert({ show: true, variant: 'danger', message: 'Error al actualizar la habitación' });
       }
     } catch (err) {
       console.error('Error updating room:', err);
-      alert('Error al actualizar la habitación');
+      setAlert({ show: true, variant: 'danger', message: 'Error al actualizar la habitación' });
     }
   };
 
@@ -189,7 +170,7 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
 
   const handleSetMaintenance = async () => {
     if (!maintenanceDate) {
-      alert('Por favor selecciona una fecha');
+      setAlert({ show: true, variant: 'warning', message: 'Por favor selecciona una fecha' });
       return;
     }
 
@@ -210,20 +191,21 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
       if (response.ok) {
         setShowMaintenanceModal(false);
         loadRooms();
-        alert(`Habitación cerrada hasta el ${new Date(maintenanceDate).toLocaleDateString()}`);
+        setAlert({ show: true, variant: 'success', message: `Habitación cerrada hasta el ${new Date(maintenanceDate).toLocaleDateString()}` });
+        setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
       } else {
-        alert('Error al cerrar la habitación');
+        setAlert({ show: true, variant: 'danger', message: 'Error al cerrar la habitación' });
       }
     } catch (err) {
       console.error('Error setting maintenance:', err);
-      alert('Error al cerrar la habitación');
+      setAlert({ show: true, variant: 'danger', message: 'Error al cerrar la habitación' });
     }
   };
 
   const handleProcessPayment = async () => {
     try {
       if (!paymentData.amount || paymentData.amount <= 0) {
-        alert('Por favor ingresa un monto válido');
+        setAlert({ show: true, variant: 'warning', message: 'Por favor ingresa un monto válido' });
         return;
       }
 
@@ -248,18 +230,19 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
         setPaymentData({ amount: '', method: 'credit_card' });
         loadReservations();
         
-        let message = `Pago procesado correctamente\nID de Transacción: ${data.payment.transactionId}`;
+        let message = `Pago procesado correctamente. ID de Transacción: ${data.payment.transactionId}`;
         if (data.reservationDeleted) {
-          message += '\n\nLa reserva ha sido completada y archivada (fecha de checkout pasada).';
+          message += ' La reserva ha sido completada y archivada.';
         }
-        alert(message);
+        setAlert({ show: true, variant: 'success', message });
+        setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 5000);
       } else {
         console.error('Payment error:', data);
-        alert(data.message || data.error || 'Error al procesar el pago');
+        setAlert({ show: true, variant: 'danger', message: data.message || data.error || 'Error al procesar el pago' });
       }
     } catch (err) {
       console.error('Error processing payment:', err);
-      alert(`Error al procesar el pago: ${err.message}`);
+      setAlert({ show: true, variant: 'danger', message: `Error al procesar el pago: ${err.message}` });
     }
   };
 
@@ -288,7 +271,7 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
 
   if (loading) {
     return (
-      <Container className="py-5">
+      <Container className="py-5 page-container">
         <div className="text-center">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Cargando...</span>
@@ -299,12 +282,18 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
   }
 
   return (
-    <Container fluid className="py-4">
+    <Container fluid className="py-4 page-container">
       <Row>
         <Col>
-          <h2 className="mb-4">Panel de Operador - {user?.name}</h2>
-          
-          {error && <Alert variant="danger">{error}</Alert>}
+          {/* Custom Alert */}
+          {alert.show && (
+            <CustomAlert
+              variant={alert.variant}
+              message={alert.message}
+              onClose={() => setAlert({ show: false, variant: '', message: '' })}
+              show={alert.show}
+            />
+          )}
 
           {/* Mapa de Habitaciones */}
           <Card className="mb-4">
@@ -574,7 +563,34 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
           transform: translateY(-2px);
           box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+        
+        /* Asegurar altura consistente en Card.Header */
+        .card-header h5 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          line-height: 1.4;
+        }
+        
+        /* Alineación perfecta de la flechita */
+        .card-header .fa-chevron-down,
+        .card-header .fa-chevron-right {
+          color: #6c757d;
+          transition: transform 0.2s ease;
+        }
+        
+        /* Espaciado consistente para badges */
+        .card-header .badge {
+          font-size: 0.75rem;
+          padding: 0.35em 0.65em;
+        }
       `}</style>
+
+      {/* Reservation Details Modal */}
+      <ReservationDetailsModal
+        show={showDetailsModal}
+        onHide={() => setShowDetailsModal(false)}
+        reservation={selectedReservationDetails}
+      />
     </Container>
   );
 };
@@ -621,19 +637,24 @@ const RoomGroupsView = ({ rooms, getRoomStatusBadge, updateRoomStatus, openMaint
               style={{ cursor: 'pointer', backgroundColor: '#f8f9fa' }}
               className="d-flex justify-content-between align-items-center"
             >
-              <div>
-                <h5 className="mb-1">
-                  <i className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} me-2`}></i>
-                  <Badge bg="secondary" className="me-2">{group.type}</Badge>
-                  {group.name}
-                </h5>
-                <small className="text-muted">
-                  {group.rooms.length} habitaciones | ${group.price}/noche | Capacidad: {group.capacity}
-                </small>
+              <div className="d-flex align-items-start flex-grow-1">
+                <i 
+                  className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} me-3 mt-1`}
+                  style={{ fontSize: '1rem', minWidth: '16px' }}
+                ></i>
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center mb-1">
+                    <Badge bg="secondary" className="me-2">{group.type}</Badge>
+                    <h5 className="mb-0">{group.name}</h5>
+                  </div>
+                  <small className="text-muted">
+                    {group.rooms.length} habitaciones | ${group.price}/noche | Capacidad: {group.capacity}
+                  </small>
+                </div>
               </div>
-              <div>
-                <Badge bg="success" className="me-1">{availableCount} disponibles</Badge>
-                <Badge bg="danger" className="me-1">{occupiedCount} ocupadas</Badge>
+              <div className="d-flex gap-1 flex-shrink-0 ms-3">
+                <Badge bg="success">{availableCount} disponibles</Badge>
+                <Badge bg="danger">{occupiedCount} ocupadas</Badge>
                 <Badge bg="warning">{maintenanceCount} mantenimiento</Badge>
               </div>
             </Card.Header>

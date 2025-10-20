@@ -16,16 +16,16 @@ const Footer = () => {
               Una experiencia inolvidable te espera.
             </p>
             <div className="social-links">
-              <a href="#" className="text-light me-3">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-light me-3" aria-label="Facebook">
                 <i className="fab fa-facebook-f"></i>
               </a>
-              <a href="#" className="text-light me-3">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-light me-3" aria-label="Twitter">
                 <i className="fab fa-twitter"></i>
               </a>
-              <a href="#" className="text-light me-3">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-light me-3" aria-label="Instagram">
                 <i className="fab fa-instagram"></i>
               </a>
-              <a href="#" className="text-light">
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-light" aria-label="LinkedIn">
                 <i className="fab fa-linkedin-in"></i>
               </a>
             </div>
@@ -88,9 +88,9 @@ const Footer = () => {
           </Col>
           <Col md={6} className="text-md-end">
             <div className="footer-links">
-              <a href="#" className="text-muted text-decoration-none me-3">Política de Privacidad</a>
-              <a href="#" className="text-muted text-decoration-none me-3">Términos de Servicio</a>
-              <a href="#" className="text-muted text-decoration-none">Cookies</a>
+              <a href="/privacy" className="text-muted text-decoration-none me-3">Política de Privacidad</a>
+              <a href="/terms" className="text-muted text-decoration-none me-3">Términos de Servicio</a>
+              <a href="/cookies" className="text-muted text-decoration-none">Cookies</a>
             </div>
           </Col>
         </Row>

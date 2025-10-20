@@ -14,6 +14,27 @@ const Navigation = () => {
     navigate('/');
   };
 
+  const handleNavClick = (sectionId) => {
+    // Si no estamos en la página principal, navegar primero
+    if (window.location.pathname !== '/') {
+      navigate('/');
+      // Esperar a que se cargue la página y luego hacer scroll
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+
+  const handleHomeClick = (e) => {
+    if (window.location.pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <Navbar variant="dark" expand="lg" className="navbar fixed-top">
@@ -25,10 +46,10 @@ const Navigation = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link as={Link} to="/">Inicio</Nav.Link>
-              <Nav.Link href="#rooms">Habitaciones</Nav.Link>
-              <Nav.Link href="#services">Servicios</Nav.Link>
-              <Nav.Link href="#contact">Contacto</Nav.Link>
+              <Nav.Link as={Link} to="/" onClick={handleHomeClick}>Inicio</Nav.Link>
+              <Nav.Link href="#rooms" onClick={() => handleNavClick('rooms')}>Habitaciones</Nav.Link>
+              <Nav.Link href="#services" onClick={() => handleNavClick('services')}>Servicios</Nav.Link>
+              <Nav.Link href="#contact" onClick={() => handleNavClick('contact')}>Contacto</Nav.Link>
             </Nav>
             <Nav>
               {user ? (

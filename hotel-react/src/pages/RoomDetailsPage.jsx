@@ -4,6 +4,7 @@ import { Container, Row, Col, Card, Button, Badge, Spinner, Alert, Carousel } fr
 import { roomsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ReservationModal from '../components/ReservationModal';
+import CustomAlert from '../components/CustomAlert';
 
 const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -13,6 +14,7 @@ const RoomDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showReservationModal, setShowReservationModal] = useState(false);
+  const [successAlert, setSuccessAlert] = useState({ show: false, message: '' });
 
   useEffect(() => {
     fetchRoomDetails();
@@ -35,10 +37,17 @@ const RoomDetailsPage = () => {
 
   const handleReserve = () => {
     if (!user) {
-      alert('Por favor inicia sesión para reservar');
+      setError('Por favor inicia sesión para reservar');
+      setTimeout(() => setError(''), 5000);
       return;
     }
     setShowReservationModal(true);
+  };
+
+  const handleReservationSuccess = () => {
+    setShowReservationModal(false);
+    setSuccessAlert({ show: true, message: '✅ ¡Reserva creada exitosamente! Proceda con el pago para confirmar su reserva.' });
+    setTimeout(() => setSuccessAlert({ show: false, message: '' }), 5000);
   };
 
   const getStatusBadge = (status) => {
@@ -101,7 +110,7 @@ const RoomDetailsPage = () => {
 
   if (loading) {
     return (
-      <Container className="py-5 text-center">
+      <Container className="py-5 text-center page-container">
         <Spinner animation="border" variant="primary" />
         <p className="mt-3">Cargando detalles de la habitación...</p>
       </Container>
@@ -110,7 +119,7 @@ const RoomDetailsPage = () => {
 
   if (error || !room) {
     return (
-      <Container className="py-5">
+      <Container className="py-5 page-container">
         <Alert variant="danger">
           {error || 'Habitación no encontrada'}
         </Alert>
@@ -122,7 +131,17 @@ const RoomDetailsPage = () => {
   }
 
   return (
-    <div className="room-details-page">
+    <div className="room-details-page page-container">
+      {/* Success Alert */}
+      {successAlert.show && (
+        <CustomAlert
+          variant="success"
+          message={successAlert.message}
+          onClose={() => setSuccessAlert({ show: false, message: '' })}
+          show={successAlert.show}
+        />
+      )}
+      
       {/* Back Button */}
       <Container className="py-3">
         <Button variant="outline-primary" onClick={() => navigate('/')}>
@@ -365,6 +384,7 @@ const RoomDetailsPage = () => {
         show={showReservationModal}
         onHide={() => setShowReservationModal(false)}
         room={room}
+        onSuccess={handleReservationSuccess}
       />
     </div>
   );

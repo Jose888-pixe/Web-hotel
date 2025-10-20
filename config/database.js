@@ -4,7 +4,13 @@ require('dotenv').config();
 // Configure database based on environment
 let sequelize;
 
-if (process.env.DATABASE_URL) {
+// Check if DATABASE_URL exists and is valid (not a placeholder)
+const hasValidDatabaseUrl = process.env.DATABASE_URL && 
+                            process.env.DATABASE_URL !== '' && 
+                            !process.env.DATABASE_URL.includes('your_postgresql_connection_string_here') &&
+                            process.env.DATABASE_URL.startsWith('postgres');
+
+if (hasValidDatabaseUrl) {
   // Production: Use PostgreSQL from Render
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
@@ -23,7 +29,7 @@ if (process.env.DATABASE_URL) {
     }
   });
 } else {
-  // Development: Use SQLite
+  // Development/Local Production: Use SQLite
   sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: './hotel_elegance.db',

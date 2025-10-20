@@ -103,7 +103,7 @@ export const usersAPI = {
 
 // Contact API
 export const contactAPI = {
-  createContact: (data) => api.post('/contact', data),
+  createContact: (data) => api.post('/api/contact', data),
   getContacts: () => api.get('/api/contact'),
   getContact: (id) => api.get(`/api/contact/${id}`),
   updateContact: (id, contactData) => api.put(`/api/contact/${id}`, contactData),

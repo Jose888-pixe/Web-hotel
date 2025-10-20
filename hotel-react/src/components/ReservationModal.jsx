@@ -3,8 +3,9 @@ import { Modal, Button, Form, Alert, Row, Col } from 'react-bootstrap';
 import { reservationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import DatePicker from './DatePicker';
+import CustomAlert from './CustomAlert';
 
-const ReservationModal = ({ show, onHide, room }) => {
+const ReservationModal = ({ show, onHide, room, onSuccess }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     checkIn: '',
@@ -15,6 +16,7 @@ const ReservationModal = ({ show, onHide, room }) => {
   const [occupiedDates, setOccupiedDates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successAlert, setSuccessAlert] = useState({ show: false, message: '' });
 
   useEffect(() => {
     if (show && room) {
@@ -140,8 +142,20 @@ const ReservationModal = ({ show, onHide, room }) => {
         guests: '2',
         specialRequests: ''
       });
+      
+      // Cerrar modal inmediatamente
       onHide();
-      alert('¡Reserva creada exitosamente! Te contactaremos pronto para confirmar.');
+      
+      // Si hay callback de éxito, usarlo (para HomePage y RoomDetailsPage)
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        // Si no hay callback, mostrar alert interno
+        setSuccessAlert({ show: true, message: '✅ ¡Reserva creada exitosamente! Proceda con el pago para confirmar su reserva.' });
+        setTimeout(() => {
+          setSuccessAlert({ show: false, message: '' });
+        }, 5000);
+      }
       
     } catch (err) {
       const errorMessage = err.response?.data?.message;
@@ -161,14 +175,23 @@ const ReservationModal = ({ show, onHide, room }) => {
   const total = calculateTotal();
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered>
-      <Modal.Header closeButton>
-        <Modal.Title>{room.name}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div className="mb-3">
-          <h6 className="text-muted">{room.type}</h6>
-          <p><i className="fas fa-users me-2"></i>Hasta {room.capacity} huéspedes</p>
+    <>
+      {successAlert.show && (
+        <CustomAlert
+          variant="success"
+          message={successAlert.message}
+          show={successAlert.show}
+        />
+      )}
+      
+      <Modal show={show} onHide={onHide} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{room.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mb-3">
+            <h6 className="text-muted">{room.type}</h6>
+            <p><i className="fas fa-users me-2"></i>Hasta {room.capacity} huéspedes</p>
           <h5 className="text-primary">${room.price}/noche</h5>
         </div>
 
@@ -193,6 +216,7 @@ const ReservationModal = ({ show, onHide, room }) => {
               onCheckOutChange={handleCheckOutChange}
               occupiedDates={occupiedDates}
               minDate={new Date().toISOString().split('T')[0]}
+              onError={(msg) => setError(msg)}
             />
           </Form.Group>
 
@@ -278,6 +302,7 @@ const ReservationModal = ({ show, onHide, room }) => {
         </Form>
       </Modal.Body>
     </Modal>
+    </>
   );
 };
 

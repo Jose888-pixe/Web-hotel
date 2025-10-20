@@ -162,10 +162,27 @@ cd ..
 ```
 
 #### 4. Configurar variables de entorno
+
+**OPCIÓN A - Automática (Windows):**
 ```bash
-# En la raíz del proyecto
-cp .env.example .env
-# Editar .env (usa SQLite por defecto en desarrollo)
+# Ejecutar los scripts .bat
+crear-env-backend.bat
+cd hotel-react
+crear-env-frontend.bat
+```
+
+**OPCIÓN B - Manual:**
+```bash
+# Crear .env en la raíz del proyecto con:
+PORT=3001
+NODE_ENV=development
+DATABASE_URL=
+JWT_SECRET=tu_clave_secreta_super_segura
+FRONTEND_URL=http://localhost:3003
+
+# Crear .env en hotel-react con:
+PORT=3003
+REACT_APP_API_URL=http://localhost:3001
 ```
 
 #### 5. Poblar base de datos local
@@ -175,9 +192,17 @@ npm run seed
 
 #### 6. Iniciar servidores
 
+**OPCIÓN A - Automática (Windows):**
+```bash
+# Ejecutar el script que abre ambas terminales
+INICIAR_PROYECTO.bat
+```
+
+**OPCIÓN B - Manual (Dos terminales):**
+
 **Terminal 1 - Backend:**
 ```bash
-npm start
+npm run dev
 # Corre en http://localhost:3001
 ```
 

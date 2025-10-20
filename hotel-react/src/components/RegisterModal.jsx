@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
-import { usersAPI } from '../services/api';
 
 const RegisterModal = ({ show, onHide, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -64,7 +63,7 @@ const RegisterModal = ({ show, onHide, onSuccess }) => {
         onSuccess();
       }
       
-      alert('¡Registro exitoso! Ahora puedes iniciar sesión con tus credenciales.');
+      setError('');
       
     } catch (err) {
       setError(err.response?.data?.message || 'Error al registrar usuario');

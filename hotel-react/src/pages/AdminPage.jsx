@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Table, Badge, Spinner, Alert, Nav, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Table, Badge, Spinner, Nav, Modal, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { roomsAPI, reservationsAPI, usersAPI } from '../services/api';
+import CustomAlert from '../components/CustomAlert';
+import ReservationDetailsModal from '../components/ReservationDetailsModal';
 
 const AdminPage = () => {
   const { user } = useAuth();
@@ -38,6 +40,21 @@ const AdminPage = () => {
     phone: '',
     role: 'visitor'
   });
+  
+  // Alert and details modal states
+  const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedReservationDetails, setSelectedReservationDetails] = useState(null);
+  
+  // Confirmation modal states
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  
+  // Password change modal states
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordUser, setPasswordUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
     if (user && (user.role === 'admin' || user.role === 'operator')) {
@@ -85,75 +102,75 @@ const AdminPage = () => {
     setUsers(response.data.users || []);
   };
 
-  const deleteReservation = async (reservationId) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar esta reserva?')) {
-      return;
-    }
+  // Helper function to show confirmation modal
+  const showConfirmation = (message, action) => {
+    setConfirmMessage(message);
+    setConfirmAction(() => action);
+    setShowConfirmModal(true);
+  };
 
-    try {
-      await reservationsAPI.deleteReservation(reservationId);
-      loadReservations();
-      alert('Reserva eliminada correctamente');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error al eliminar la reserva');
+  const handleConfirm = () => {
+    if (confirmAction) {
+      confirmAction();
     }
+    setShowConfirmModal(false);
+    setConfirmAction(null);
+  };
+
+  const deleteReservation = async (reservationId) => {
+    showConfirmation(
+      '¿Estás seguro de que deseas eliminar esta reserva? Esta acción no se puede deshacer.',
+      async () => {
+
+        try {
+          await reservationsAPI.deleteReservation(reservationId);
+          loadReservations();
+          setAlert({ show: true, variant: 'success', message: '✅ Reserva eliminada correctamente' });
+          setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
+        } catch (err) {
+          setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al eliminar la reserva' });
+        }
+      }
+    );
   };
 
   const updateReservationStatus = async (reservationId, status) => {
     try {
       await reservationsAPI.updateReservation(reservationId, { status });
       loadReservations();
-      alert('Estado de reserva actualizado correctamente');
+      setAlert({ show: true, variant: 'success', message: '✅ Estado de reserva actualizado correctamente' });
+      setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al actualizar la reserva');
+      setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al actualizar la reserva' });
     }
   };
 
   const viewReservationDetails = async (reservationId) => {
     try {
       const response = await reservationsAPI.getReservation(reservationId);
-      const reservation = response.data.reservation;
-      const details = `
-Detalles de la Reserva
-
-Número de Reserva: ${reservation.reservationNumber}
-Huésped: ${reservation.guestFirstName} ${reservation.guestLastName}
-Email: ${reservation.guestEmail}
-Teléfono: ${reservation.guestPhone}
-
-Habitación: ${reservation.room?.number} - ${reservation.room?.name}
-Tipo: ${reservation.room?.type}
-
-Check-in: ${new Date(reservation.checkIn).toLocaleDateString()}
-Check-out: ${new Date(reservation.checkOut).toLocaleDateString()}
-Adultos: ${reservation.adults}
-Niños: ${reservation.children}
-
-Estado: ${reservation.status}
-Estado de Pago: ${reservation.paymentStatus}
-Total: $${reservation.totalAmount}
-
-${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRequests}` : ''}
-      `;
-      alert(details);
+      setSelectedReservationDetails(response.data.reservation);
+      setShowDetailsModal(true);
     } catch (err) {
-      alert('Error al cargar los detalles de la reserva');
+      setAlert({ show: true, variant: 'danger', message: 'Error al cargar los detalles de la reserva' });
     }
   };
 
   // Room management functions
   const deleteRoom = async (roomId) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar esta habitación?')) {
-      return;
-    }
+    showConfirmation(
+      '¿Estás seguro de que deseas eliminar esta habitación? Esta acción no se puede deshacer.',
+      async () => {
 
-    try {
-      await roomsAPI.deleteRoom(roomId);
-      loadRooms();
-      alert('Habitación eliminada correctamente');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error al eliminar la habitación');
-    }
+        try {
+          await roomsAPI.deleteRoom(roomId);
+          loadRooms();
+          setAlert({ show: true, variant: 'success', message: '✅ Habitación eliminada correctamente' });
+          setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
+        } catch (err) {
+          setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al eliminar la habitación' });
+        }
+      }
+    );
   };
 
   const editRoom = (room) => {
@@ -191,31 +208,34 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
     try {
       if (editingRoom) {
         await roomsAPI.updateRoom(editingRoom.id, roomFormData);
-        alert('Habitación actualizada correctamente');
+        setAlert({ show: true, variant: 'success', message: '✅ Habitación actualizada correctamente' });
       } else {
         await roomsAPI.createRoom(roomFormData);
-        alert('Habitación creada correctamente');
+        setAlert({ show: true, variant: 'success', message: '✅ Habitación creada correctamente' });
       }
       setShowRoomModal(false);
       loadRooms();
+      setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al guardar la habitación');
+      setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al guardar la habitación' });
     }
   };
 
   // User management functions
   const deleteUser = async (userId) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      return;
-    }
-
-    try {
-      await usersAPI.deleteUser(userId);
-      loadUsers();
-      alert('Usuario eliminado correctamente');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error al eliminar el usuario');
-    }
+    showConfirmation(
+      '¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.',
+      async () => {
+        try {
+          await usersAPI.deleteUser(userId);
+          loadUsers();
+          setAlert({ show: true, variant: 'success', message: '✅ Usuario eliminado correctamente' });
+          setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
+        } catch (err) {
+          setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al eliminar el usuario' });
+        }
+      }
+    );
   };
 
   const editUser = (user) => {
@@ -231,17 +251,26 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
     setShowUserModal(true);
   };
 
-  const changeUserPassword = async (user) => {
-    const newPassword = prompt(`Cambiar contraseña para: ${user.firstName} ${user.lastName}\n\nIngrese la nueva contraseña (mínimo 6 caracteres):`);
-    if (newPassword && newPassword.length >= 6) {
-      try {
-        await usersAPI.updateUser(user.id, { password: newPassword });
-        alert('Contraseña actualizada correctamente');
-      } catch (err) {
-        alert(err.response?.data?.message || 'Error al actualizar la contraseña');
-      }
-    } else if (newPassword) {
-      alert('La contraseña debe tener al menos 6 caracteres');
+  const changeUserPassword = (user) => {
+    setPasswordUser(user);
+    setNewPassword('');
+    setShowPasswordModal(true);
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      setAlert({ show: true, variant: 'warning', message: 'La contraseña debe tener al menos 6 caracteres' });
+      return;
+    }
+    try {
+      await usersAPI.updateUser(passwordUser.id, { password: newPassword });
+      setAlert({ show: true, variant: 'success', message: '✅ Contraseña actualizada correctamente' });
+      setShowPasswordModal(false);
+      setNewPassword('');
+      setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
+    } catch (err) {
+      setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al actualizar la contraseña' });
     }
   };
 
@@ -267,19 +296,20 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
           delete updateData.password;
         }
         await usersAPI.updateUser(editingUser.id, updateData);
-        alert('Usuario actualizado correctamente');
+        setAlert({ show: true, variant: 'success', message: '✅ Usuario actualizado correctamente' });
       } else {
         if (!userFormData.password || userFormData.password.length < 6) {
-          alert('La contraseña debe tener al menos 6 caracteres');
+          setAlert({ show: true, variant: 'warning', message: 'La contraseña debe tener al menos 6 caracteres' });
           return;
         }
         await usersAPI.createUser(userFormData);
-        alert('Usuario creado correctamente');
+        setAlert({ show: true, variant: 'success', message: '✅ Usuario creado correctamente' });
       }
       setShowUserModal(false);
       loadUsers();
+      setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al guardar el usuario');
+      setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al guardar el usuario' });
     }
   };
 
@@ -288,7 +318,7 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
   }
 
   return (
-    <Container fluid className="py-3 mt-5">
+    <Container fluid className="py-3 page-container">
       <Row>
         {/* Sidebar */}
         <Col md={3} lg={2}>
@@ -570,6 +600,89 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
             </div>
           </Form>
         </Modal.Body>
+      </Modal>
+
+      {/* Custom Alert */}
+      {alert.show && (
+        <CustomAlert
+          variant={alert.variant}
+          message={alert.message}
+          onClose={() => setAlert({ show: false, variant: '', message: '' })}
+          show={alert.show}
+        />
+      )}
+
+      {/* Reservation Details Modal */}
+      <ReservationDetailsModal
+        show={showDetailsModal}
+        onHide={() => setShowDetailsModal(false)}
+        reservation={selectedReservationDetails}
+      />
+
+      {/* Confirmation Modal */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title>
+            <i className="fas fa-exclamation-triangle text-warning me-2"></i>
+            Confirmar Acción
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="py-4">
+          <p className="mb-0">{confirmMessage}</p>
+        </Modal.Body>
+        <Modal.Footer className="border-0">
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleConfirm}>
+            <i className="fas fa-check me-2"></i>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Password Change Modal */}
+      <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)} centered>
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title>
+            <i className="fas fa-key text-primary me-2"></i>
+            Cambiar Contraseña
+          </Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handlePasswordSubmit}>
+          <Modal.Body>
+            {passwordUser && (
+              <div className="mb-3">
+                <p className="text-muted mb-3">
+                  Usuario: <strong>{passwordUser.firstName} {passwordUser.lastName}</strong>
+                </p>
+                <Form.Group>
+                  <Form.Label>Nueva Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Mínimo 6 caracteres"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                  <Form.Text className="text-muted">
+                    La contraseña debe tener al menos 6 caracteres
+                  </Form.Text>
+                </Form.Group>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer className="border-0">
+            <Button variant="secondary" onClick={() => setShowPasswordModal(false)}>
+              Cancelar
+            </Button>
+            <Button variant="primary" type="submit">
+              <i className="fas fa-save me-2"></i>
+              Guardar Contraseña
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
     </Container>
   );
@@ -972,19 +1085,24 @@ const RoomsSection = ({ rooms, loading, onAdd, onEdit, onDelete }) => {
                   style={{ cursor: 'pointer' }}
                   className="d-flex justify-content-between align-items-center"
                 >
-                  <div>
-                    <h5 className="mb-1">
-                      <i className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} me-2`}></i>
-                      <Badge bg="secondary" className="me-2">{group.type}</Badge>
-                      {group.name}
-                    </h5>
-                    <small className="text-muted">
-                      {group.rooms.length} habitaciones | ${group.price}/noche | Capacidad: {group.capacity}
-                    </small>
+                  <div className="d-flex align-items-start flex-grow-1">
+                    <i 
+                      className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} me-3 mt-1`}
+                      style={{ fontSize: '1rem', minWidth: '16px' }}
+                    ></i>
+                    <div className="flex-grow-1">
+                      <div className="d-flex align-items-center mb-1">
+                        <Badge bg="secondary" className="me-2">{group.type}</Badge>
+                        <h5 className="mb-0">{group.name}</h5>
+                      </div>
+                      <small className="text-muted">
+                        {group.rooms.length} habitaciones | ${group.price}/noche | Capacidad: {group.capacity}
+                      </small>
+                    </div>
                   </div>
-                  <div>
-                    <Badge bg="success" className="me-1">{availableCount} disponibles</Badge>
-                    <Badge bg="danger" className="me-1">{occupiedCount} ocupadas</Badge>
+                  <div className="d-flex gap-1 flex-shrink-0 ms-3">
+                    <Badge bg="success">{availableCount} disponibles</Badge>
+                    <Badge bg="danger">{occupiedCount} ocupadas</Badge>
                     <Badge bg="warning">{maintenanceCount} mantenimiento</Badge>
                   </div>
                 </Card.Header>

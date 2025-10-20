@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import './DatePicker.css';
 
-const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChange, occupiedDates = [], minDate }) => {
+const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChange, occupiedDates = [], minDate, onError }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChan
     // Si la fecha está ocupada, no permitir selección
     if (isDateOccupied(dateStr)) {
       console.log('❌ Date is occupied, cannot select');
-      alert('Esta fecha no está disponible');
+      if (onError) onError('Esta fecha no está disponible');
       return;
     }
 
@@ -76,7 +76,7 @@ const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChan
     // No permitir check-out antes o igual al check-in
     if (clickedDate <= currentCheckIn) {
       console.log('❌ Check-out must be after check-in');
-      alert('La fecha de salida debe ser posterior a la fecha de entrada');
+      if (onError) onError('La fecha de salida debe ser posterior a la fecha de entrada');
       return;
     }
 
@@ -84,7 +84,7 @@ const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChan
     const hasOccupied = hasOccupiedDatesInRange(checkInDate, dateStr);
     if (hasOccupied) {
       console.log('❌ Range has occupied dates');
-      alert('El rango seleccionado incluye fechas ocupadas. Por favor elige otras fechas.');
+      if (onError) onError('El rango seleccionado incluye fechas ocupadas. Por favor elige otras fechas.');
       return;
     }
 

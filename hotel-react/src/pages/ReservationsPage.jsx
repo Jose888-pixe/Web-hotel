@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Spinner, Alert, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Spinner, Button } from 'react-bootstrap';
 import { Navigate } from 'react-router-dom';
 import { reservationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import PaymentModal from '../components/PaymentModal';
+import CustomAlert from '../components/CustomAlert';
+import ReservationDetailsModal from '../components/ReservationDetailsModal';
 
 const ReservationsPage = () => {
   const [reservations, setReservations] = useState([]);
@@ -11,6 +13,9 @@ const ReservationsPage = () => {
   const [error, setError] = useState('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState(null);
+  const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedReservationDetails, setSelectedReservationDetails] = useState(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -67,33 +72,10 @@ const ReservationsPage = () => {
   const viewReservationDetails = async (reservationId) => {
     try {
       const response = await reservationsAPI.getReservation(reservationId);
-      const reservation = response.data.reservation;
-      const details = `
-Detalles de la Reserva
-
-Número de Reserva: ${reservation.reservationNumber}
-Huésped: ${reservation.guestFirstName} ${reservation.guestLastName}
-Email: ${reservation.guestEmail}
-Teléfono: ${reservation.guestPhone}
-
-Habitación: ${reservation.room?.number} - ${reservation.room?.name}
-Tipo: ${reservation.room?.type}
-
-Check-in: ${formatDate(reservation.checkIn)}
-Check-out: ${formatDate(reservation.checkOut)}
-Noches: ${calculateNights(reservation.checkIn, reservation.checkOut)}
-Adultos: ${reservation.adults}
-Niños: ${reservation.children}
-
-Estado: ${reservation.status}
-Estado de Pago: ${reservation.paymentStatus}
-Total: $${reservation.totalAmount}
-
-${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRequests}` : ''}
-      `;
-      alert(details);
+      setSelectedReservationDetails(response.data.reservation);
+      setShowDetailsModal(true);
     } catch (err) {
-      alert('Error al cargar los detalles de la reserva');
+      setAlert({ show: true, variant: 'danger', message: 'Error al cargar los detalles de la reserva' });
     }
   };
 
@@ -105,9 +87,10 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
     try {
       await reservationsAPI.updateReservation(reservationId, { status: 'cancelled' });
       loadReservations();
-      alert('Reserva cancelada correctamente');
+      setAlert({ show: true, variant: 'success', message: 'Reserva cancelada correctamente' });
+      setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 3000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al cancelar la reserva');
+      setAlert({ show: true, variant: 'danger', message: err.response?.data?.message || 'Error al cancelar la reserva' });
     }
   };
 
@@ -118,7 +101,8 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
 
   const handlePaymentSuccess = async () => {
     await loadReservations();
-    alert('✅ Pago procesado exitosamente!\n\nSu reserva ha sido confirmada.');
+    setAlert({ show: true, variant: 'success', message: '✅ Pago procesado exitosamente! Su reserva ha sido confirmada.' });
+    setTimeout(() => setAlert({ show: false, variant: '', message: '' }), 5000);
   };
 
   if (!user) {
@@ -126,14 +110,22 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
   }
 
   return (
-    <Container className="py-4">
+    <Container className="py-4 page-container" style={{ paddingTop: '120px' }}>
+      {/* Custom Alert */}
+      {alert.show && (
+        <CustomAlert
+          variant={alert.variant}
+          message={alert.message}
+          onClose={() => setAlert({ show: false, variant: '', message: '' })}
+          show={alert.show}
+        />
+      )}
+      
       <Row>
         <Col>
-          <h1 className="mb-4">
+          <h1 className="mb-4" style={{ marginTop: '30px' }}>
             {user.role === 'visitor' ? 'Mis Reservas' : 'Todas las Reservas'}
           </h1>
-          
-          {error && <Alert variant="danger">{error}</Alert>}
           
           {loading ? (
             <div className="text-center py-5">
@@ -243,6 +235,13 @@ ${reservation.specialRequests ? `Solicitudes Especiales: ${reservation.specialRe
         onHide={() => setShowPaymentModal(false)}
         reservation={selectedReservation}
         onPaymentSuccess={handlePaymentSuccess}
+      />
+
+      {/* Reservation Details Modal */}
+      <ReservationDetailsModal
+        show={showDetailsModal}
+        onHide={() => setShowDetailsModal(false)}
+        reservation={selectedReservationDetails}
       />
     </Container>
   );

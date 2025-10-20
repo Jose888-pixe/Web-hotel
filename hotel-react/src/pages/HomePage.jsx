@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Form, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Alert } from 'react-bootstrap';
 import { roomsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ReservationModal from '../components/ReservationModal';
 import ContactForm from '../components/ContactForm';
+import CustomAlert from '../components/CustomAlert';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -21,9 +22,9 @@ const HomePage = () => {
     maxPrice: ''
   });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [showReservationModal, setShowReservationModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
-
+  const [showReservationModal, setShowReservationModal] = useState(false);
+  const [successAlert, setSuccessAlert] = useState({ show: false, message: '' });
   const { user } = useAuth();
 
   useEffect(() => {
@@ -62,15 +63,32 @@ const HomePage = () => {
 
   const handleReserve = (room) => {
     if (!user) {
-      alert('Debes iniciar sesión para hacer una reserva');
+      setError('Por favor inicia sesión para hacer una reserva');
+      setTimeout(() => setError(''), 5000);
       return;
     }
     setSelectedRoom(room);
     setShowReservationModal(true);
   };
 
+  const handleReservationSuccess = () => {
+    setShowReservationModal(false);
+    setSuccessAlert({ show: true, message: '✅ ¡Reserva creada exitosamente! Proceda con el pago para confirmar su reserva.' });
+    setTimeout(() => setSuccessAlert({ show: false, message: '' }), 5000);
+  };
+
   return (
     <div>
+      {/* Success Alert */}
+      {successAlert.show && (
+        <CustomAlert
+          variant="success"
+          message={successAlert.message}
+          onClose={() => setSuccessAlert({ show: false, message: '' })}
+          show={successAlert.show}
+        />
+      )}
+      
       {/* Hero Section */}
       <section id="home" className="hero-section">
         <div className="hero-overlay"></div>
@@ -449,8 +467,8 @@ const HomePage = () => {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-5 bg-dark text-white">
-        <Container>
+      <section id="contact" className="pt-4 pb-0 bg-dark text-white">
+        <Container className="pb-4">
           <Row>
             <Col lg={8} className="mx-auto text-center mb-5">
               <h2 className="section-title text-white">Contáctanos</h2>
@@ -512,6 +530,7 @@ const HomePage = () => {
         show={showReservationModal}
         onHide={() => setShowReservationModal(false)}
         room={selectedRoom}
+        onSuccess={handleReservationSuccess}
       />
     </div>
   );
