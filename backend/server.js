@@ -1064,9 +1064,7 @@ setInterval(cleanupPastReservations, 24 * 60 * 60 * 1000);
 // Run room status update every 5 minutes
 setInterval(updateRoomStatuses, 5 * 60 * 1000);
 
-// Run both on server start
-cleanupPastReservations();
-updateRoomStatuses();
+// Note: Initial cleanup and room status update will be called after DB sync in startServer()
 
 // Add profile endpoint for auth check
 app.get('/api/auth/profile', authenticateToken, async (req, res) => {
@@ -1479,6 +1477,14 @@ const startServer = async () => {
     
     await sequelize.sync();
     console.log('✅ Database synced');
+    
+    // Run initial cleanup and room status update after DB is ready
+    try {
+      await cleanupPastReservations();
+      await updateRoomStatuses();
+    } catch (error) {
+      console.warn('⚠️ Initial cleanup/update failed (expected on first run):', error.message);
+    }
     
     // Initialize email service
     await initializeTransporter();

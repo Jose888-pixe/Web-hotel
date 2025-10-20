@@ -1,0 +1,25 @@
+{
+  "name": "hotel-reservation-system-monorepo",
+  "version": "1.0.0",
+  "description": "Hotel reservation system with React frontend and Node.js backend",
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "install": "npm run install:backend && npm run install:frontend && npm run build:frontend",
+    "start": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": [
+    "hotel",
+    "reservation",
+    "booking"
+  ],
+  "author": "Hotel Management System",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
