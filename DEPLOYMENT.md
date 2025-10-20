@@ -6,7 +6,7 @@
 
 **Build Command:**
 ```bash
-npm install
+npm run build
 ```
 
 **Start Command:**
@@ -14,15 +14,17 @@ npm install
 npm start
 ```
 
+> **Important:** You must use `npm run build` as the build command in Render, NOT `npm install`.
+
 ### How it Works
 
-1. **npm install** (root level):
+1. **npm run build** (Build Command):
    - Installs backend dependencies (`cd backend && npm install`)
    - Installs frontend dependencies (`cd frontend && npm install`)
    - Builds the React frontend (`cd frontend && npm run build`)
    - Creates optimized production build in `frontend/build/`
 
-2. **npm start** (root level):
+2. **npm start** (Start Command):
    - Starts the backend server (`cd backend && npm start`)
    - Server serves the built React app from `frontend/build/` in production mode
 
