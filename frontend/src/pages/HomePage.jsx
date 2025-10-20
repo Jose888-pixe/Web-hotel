@@ -314,17 +314,28 @@ const HomePage = () => {
                 </div>
               </Col>
             ) : rooms.length > 0 ? (
-              rooms.map((room) => {
+              rooms.map((room, index) => {
                 // Obtener imágenes subidas para esta habitación
                 const uploadedImages = roomImages[room.id] || [];
                 const homePageImages = uploadedImages.filter(img => img.displayIn?.homePage);
                 
-                // Usar imagen subida si existe, sino usar imagen por defecto
-                const displayImage = homePageImages.length > 0
-                  ? homePageImages[0].data
-                  : (room.images && room.images.length > 0 
-                      ? (typeof room.images[0] === 'string' ? room.images[0] : room.images[0].url)
-                      : 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=300&fit=crop');
+                // Seleccionar imagen basada en el tipo de habitación para variedad
+                const getImageForRoom = () => {
+                  if (homePageImages.length > 0) {
+                    return homePageImages[0].data;
+                  }
+                  
+                  if (room.images && room.images.length > 0) {
+                    // Usar diferentes imágenes del array según el índice
+                    const imageIndex = index % room.images.length;
+                    const image = room.images[imageIndex];
+                    return typeof image === 'string' ? image : image.url;
+                  }
+                  
+                  return 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=300&fit=crop';
+                };
+                
+                const displayImage = getImageForRoom();
                 
                 return (
                 <Col lg={4} md={6} key={room.id} className="mb-4 fade-in-up">
