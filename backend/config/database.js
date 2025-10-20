@@ -32,7 +32,7 @@ if (hasValidDatabaseUrl) {
   // Development/Local Production: Use SQLite
   sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: './hotel_elegance.db',
+    storage: './azuresuites.db',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 5,

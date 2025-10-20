@@ -20,7 +20,7 @@ const seedProduction = async () => {
       {
         firstName: 'Admin',
         lastName: 'Hotel',
-        email: 'admin@hotelelegance.com',
+        email: 'admin@azuresuites.com',
         password: 'admin123',
         role: 'admin',
         phone: '+34 91 123 4567'
@@ -28,7 +28,7 @@ const seedProduction = async () => {
       {
         firstName: 'Operador',
         lastName: 'Hotel',
-        email: 'operator@hotelelegance.com',
+        email: 'operator@azuresuites.com',
         password: 'operator123',
         role: 'operator',
         phone: '+34 91 123 4568'
@@ -126,8 +126,8 @@ const seedProduction = async () => {
     console.log(`   Users: ${createdUsers.length}`);
     console.log(`   Rooms: ${createdRooms.length}`);
     console.log('\n📋 Login Credentials:');
-    console.log('   Admin: admin@hotelelegance.com / admin123');
-    console.log('   Operator: operator@hotelelegance.com / operator123');
+    console.log('   Admin: admin@azuresuites.com / admin123');
+    console.log('   Operator: operator@azuresuites.com / operator123');
 
   } catch (error) {
     console.error('❌ Error seeding production data:', error);
