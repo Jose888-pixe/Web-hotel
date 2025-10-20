@@ -1,47 +1,27 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// Configure database based on environment
-let sequelize;
-
-// Check if DATABASE_URL exists and is valid (not a placeholder)
-const hasValidDatabaseUrl = process.env.DATABASE_URL && 
-                            process.env.DATABASE_URL !== '' && 
-                            !process.env.DATABASE_URL.includes('your_postgresql_connection_string_here') &&
-                            process.env.DATABASE_URL.startsWith('postgres');
-
-if (hasValidDatabaseUrl) {
-  // Production: Use PostgreSQL from Render
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
-    logging: false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
-  });
-} else {
-  // Development/Local Production: Use SQLite
-  sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './azuresuites.db',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
-  });
+// Configure PostgreSQL database
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
 }
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  },
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  }
+});
 
 // Test connection
 const testConnection = async () => {

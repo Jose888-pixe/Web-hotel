@@ -21,7 +21,7 @@
     "booking",
     "nodejs",
     "express",
-    "mongodb"
+    "postgresql"
   ],
   "author": "Hotel Management System",
   "license": "MIT",
@@ -41,8 +41,7 @@
     "nodemailer": "^6.10.1",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7"
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "jest": "^29.6.2",

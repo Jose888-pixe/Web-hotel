@@ -14,8 +14,16 @@ frontend/.env
 # Database
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
 hotel_elegance.db
-backend/hotel_elegance.db
+backend/*.db
+backend/scripts/data-export.json
+
+# Backup files
+*.backup
+.env.backup
+.env.postgres
 
 # Logs
 npm-debug.log*
