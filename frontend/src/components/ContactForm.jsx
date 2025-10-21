@@ -50,7 +50,7 @@ const ContactForm = ({ onSuccess }) => {
       setTimeout(() => setSuccess(false), 5000);
       
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al enviar el mensaje');
+      setError(err.message || 'Error al enviar el mensaje');
     } finally {
       setLoading(false);
     }

@@ -1504,7 +1504,7 @@ app.post('/api/contact',
       email,
       subject,
       message,
-      status: 'pending',
+      status: 'new',
       priority: 'medium'
     });
 
