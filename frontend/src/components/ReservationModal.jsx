@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Form, Alert, Row, Col } from 'react-bootstrap';
 import { reservationsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -18,25 +18,8 @@ const ReservationModal = ({ show, onHide, room, onSuccess }) => {
   const [error, setError] = useState('');
   const [successAlert, setSuccessAlert] = useState({ show: false, message: '' });
 
-  useEffect(() => {
-    if (show && room) {
-      console.log('🚀 MODAL OPENED FOR ROOM:', room.name, 'ID:', room.id);
-      setFormData({
-        checkIn: '',
-        checkOut: '',
-        guests: '2',
-        specialRequests: ''
-      });
-      setError('');
-      loadOccupiedDates();
-    }
-  }, [show, room]);
-
-  useEffect(() => {
-    console.log('📊 FormData updated:', formData);
-  }, [formData]);
-
-  const loadOccupiedDates = async () => {
+  const loadOccupiedDates = useCallback(async () => {
+    if (!room) return;
     try {
       console.log('📡 Fetching occupied dates for room', room.id);
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -49,7 +32,25 @@ const ReservationModal = ({ show, onHide, room, onSuccess }) => {
       console.error('❌ Error:', err);
       setOccupiedDates([]);
     }
-  };
+  }, [room]);
+
+  useEffect(() => {
+    if (show && room) {
+      console.log('🚀 MODAL OPENED FOR ROOM:', room.name, 'ID:', room.id);
+      setFormData({
+        checkIn: '',
+        checkOut: '',
+        guests: '2',
+        specialRequests: ''
+      });
+      setError('');
+      loadOccupiedDates();
+    }
+  }, [show, room, loadOccupiedDates]);
+
+  useEffect(() => {
+    console.log('📊 FormData updated:', formData);
+  }, [formData]);
 
   const hasOccupiedDatesInRange = (checkIn, checkOut) => {
     if (!checkIn || !checkOut) return false;
