@@ -13,7 +13,8 @@
     "migrate": "npm run export && npm run import",
     "build": "cd hotel-react && npm run build",
     "build:prod": "npm run build && npm run start:prod",
-    "start:prod": "set NODE_ENV=production && node server.js"
+    "start:prod": "set NODE_ENV=production && node server.js",
+    "check:email": "node checkEmailConfig.js"
   },
   "keywords": [
     "hotel",

@@ -16,6 +16,20 @@ services:
         sync: false
       - key: PORT
         value: 3001
+      - key: FRONTEND_URL
+        value: https://azure-suites.onrender.com
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_SECURE
+        value: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        value: "Azure Suites Hotel <noreply@azuresuites.com>"
 
   # Frontend Service
   - type: web
