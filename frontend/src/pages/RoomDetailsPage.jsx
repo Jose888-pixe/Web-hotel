@@ -42,7 +42,24 @@ const RoomDetailsPage = () => {
       setLoading(true);
       const response = await roomsAPI.getRoom(id);
       console.log('Room data received:', response.data);
-      setRoom(response.data.room || response.data);
+      let roomData = response.data.room || response.data;
+      
+      // Parse images if it's a JSON string
+      if (roomData.images && typeof roomData.images === 'string') {
+        try {
+          roomData.images = JSON.parse(roomData.images);
+        } catch (e) {
+          console.error('Error parsing room images:', e);
+          roomData.images = [];
+        }
+      }
+      
+      // Ensure images is an array
+      if (!Array.isArray(roomData.images)) {
+        roomData.images = [];
+      }
+      
+      setRoom(roomData);
       setError('');
     } catch (error) {
       console.error('Error fetching room details:', error);

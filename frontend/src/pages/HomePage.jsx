@@ -54,6 +54,18 @@ const HomePage = () => {
       allRooms.forEach(room => {
         const key = `${room.type}_${room.name}`;
         if (!grouped[key]) {
+          // Parse images if it's a JSON string
+          if (room.images && typeof room.images === 'string') {
+            try {
+              room.images = JSON.parse(room.images);
+            } catch (e) {
+              room.images = [];
+            }
+          }
+          // Ensure images is an array
+          if (!Array.isArray(room.images)) {
+            room.images = [];
+          }
           grouped[key] = room;
         }
       });
@@ -325,11 +337,12 @@ const HomePage = () => {
                     return homePageImages[0].data;
                   }
                   
-                  if (room.images && room.images.length > 0) {
-                    // Usar diferentes imágenes del array según el índice
-                    const imageIndex = index % room.images.length;
+                  if (room.images && Array.isArray(room.images) && room.images.length > 0) {
+                    // Usar hash del nombre para seleccionar imagen consistente pero variada
+                    const hash = room.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    const imageIndex = (hash + index) % room.images.length;
                     const image = room.images[imageIndex];
-                    return typeof image === 'string' ? image : image.url;
+                    return typeof image === 'string' ? image : (image?.url || image);
                   }
                   
                   return 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=300&fit=crop';
