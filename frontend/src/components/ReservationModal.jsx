@@ -39,7 +39,8 @@ const ReservationModal = ({ show, onHide, room, onSuccess }) => {
   const loadOccupiedDates = async () => {
     try {
       console.log('📡 Fetching occupied dates for room', room.id);
-      const response = await fetch(`http://localhost:3001/api/rooms/${room.id}/occupied-dates`);
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/rooms/${room.id}/occupied-dates`);
       const data = await response.json();
       console.log('✅ Received data:', data);
       console.log('✅ Occupied dates:', data.occupiedDates);

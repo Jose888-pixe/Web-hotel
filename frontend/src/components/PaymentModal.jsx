@@ -39,7 +39,8 @@ const PaymentModal = ({ show, onHide, reservation, onPaymentSuccess }) => {
 
       console.log('Sending payment payload:', paymentPayload);
 
-      const response = await fetch(`http://localhost:3001/api/payments`, {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_URL}/api/payments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
