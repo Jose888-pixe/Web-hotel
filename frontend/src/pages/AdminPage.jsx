@@ -859,6 +859,7 @@ const AdminPage = () => {
         show={showAddRoomModal}
         onHide={() => setShowAddRoomModal(false)}
         onRoomAdded={handleRoomAdded}
+        rooms={rooms}
       />
 
       {/* Confirmation Modal - CustomConfirm */}

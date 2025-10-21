@@ -64,6 +64,9 @@ export const roomsAPI = {
   createRoom: (roomData) =>
     api.post('/api/rooms', roomData),
   
+  createRoomFromType: (roomData) =>
+    api.post('/api/rooms', roomData),
+  
   updateRoom: (id, roomData) =>
     api.put(`/api/rooms/${id}`, roomData),
   

@@ -1392,6 +1392,85 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Email configuration check endpoint
+app.get('/api/email-config', (req, res) => {
+  const emailConfig = {
+    configured: false,
+    host: process.env.EMAIL_HOST || 'NOT SET',
+    port: process.env.EMAIL_PORT || 'NOT SET',
+    secure: process.env.EMAIL_SECURE || 'NOT SET',
+    user: process.env.EMAIL_USER || 'NOT SET',
+    passwordSet: !!process.env.EMAIL_PASSWORD,
+    from: process.env.EMAIL_FROM || 'NOT SET',
+    mode: (process.env.EMAIL_HOST && process.env.EMAIL_USER) ? 'SMTP' : 'Ethereal (Test)',
+    timestamp: new Date().toISOString()
+  };
+  
+  emailConfig.configured = emailConfig.host !== 'NOT SET' && 
+                          emailConfig.user !== 'NOT SET' && 
+                          emailConfig.passwordSet;
+  
+  res.json(emailConfig);
+});
+
+// Test email endpoint (protected)
+app.post('/api/test-email', async (req, res) => {
+  try {
+    const { to } = req.body;
+    
+    if (!to) {
+      return res.status(400).json({ message: 'Email address required' });
+    }
+    
+    const testTemplate = {
+      subject: 'Test Email from Azure Suites Hotel',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+            <h2 style="color: #667eea; text-align: center;">✅ Test Email</h2>
+            <p>This is a test email from your Azure Suites Hotel backend.</p>
+            <p><strong>Sent at:</strong> ${new Date().toISOString()}</p>
+            <p><strong>Environment:</strong> ${process.env.NODE_ENV || 'development'}</p>
+            <p><strong>Email Service:</strong> ${process.env.EMAIL_HOST ? 'SMTP Configured' : 'Ethereal Test'}</p>
+            <div style="margin-top: 20px; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #667eea;">
+              <p style="margin: 0;"><strong>✓ Email system is working correctly!</strong></p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+    
+    const result = await sendEmail(to, testTemplate);
+    
+    if (result.success) {
+      res.json({ 
+        success: true, 
+        message: 'Test email sent successfully',
+        messageId: result.messageId
+      });
+    } else {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to send test email',
+        error: result.error
+      });
+    }
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error sending test email',
+      error: error.message
+    });
+  }
+});
+
 // Catch-all route - Serve React app in production
 app.get('*', (req, res) => {
   // Only handle API routes
