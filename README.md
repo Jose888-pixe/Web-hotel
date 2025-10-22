@@ -154,7 +154,6 @@ azure-suites/
 │   └── package.json
 │
 ├── .gitignore
-├── MIGRATION_GUIDE.md       # Guía de migración
 └── README.md                # Este archivo
 ```
 
@@ -224,12 +223,16 @@ JWT_SECRET=tu_jwt_secret_super_seguro_aqui
 # Server Port
 PORT=3001
 
-# Email Configuration (opcional)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=tu_email@gmail.com
-SMTP_PASS=tu_password_de_aplicacion
-EMAIL_FROM=noreply@azuresuites.com
+# Email Configuration (Gmail SMTP)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+EMAIL_USER=tu_email@gmail.com
+EMAIL_PASSWORD=tu_app_password_de_16_caracteres
+EMAIL_FROM="Azure Suites Hotel <noreply@azuresuites.com>"
+
+# Frontend URL (para emails)
+FRONTEND_URL=http://localhost:3003
 ```
 
 ### 3. Poblar Base de Datos
@@ -399,20 +402,32 @@ User 1:N Contact (responded)
 NODE_ENV=production
 DATABASE_URL=postgresql://...
 JWT_SECRET=...
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=...
-SMTP_PASS=...
-EMAIL_FROM=noreply@azuresuites.com
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+EMAIL_USER=tu_email@gmail.com
+EMAIL_PASSWORD=tu_app_password_gmail
+EMAIL_FROM="Azure Suites Hotel <noreply@azuresuites.com>"
+FRONTEND_URL=https://tu-app.onrender.com
 ```
+
+**Nota importante sobre EMAIL_PASSWORD:**
+- Debe ser una **App Password** de Gmail (16 caracteres)
+- No uses tu contraseña normal de Gmail
+- Genera una en: [Google Account > Security > 2-Step Verification > App passwords](https://myaccount.google.com/apppasswords)
 
 #### 4. Deploy
 - Manual Deploy → Deploy latest commit
 - Esperar 3-5 minutos
 
-### Migración de Datos
+### Verificar Configuración de Email
 
-Si necesitas migrar datos de SQLite a PostgreSQL, consulta [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)
+```bash
+cd backend
+node checkEmailConfig.js
+```
+
+Esto verificará que todas las variables de email estén correctamente configuradas.
 
 ---
 
@@ -575,11 +590,23 @@ Para soporte, envía un email a support@azuresuites.com o abre un issue en GitHu
 
 ---
 
-## 📚 Documentación Adicional
+## 📧 Configuración de Emails
 
-- [Guía de Migración](./MIGRATION_GUIDE.md) - Migración de SQLite a PostgreSQL
-- [API Documentation](./docs/API.md) - Documentación completa de la API
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Guía detallada de deployment
+### Servicio Utilizado
+- **Proveedor:** Gmail SMTP
+- **Puerto:** 587 (TLS)
+- **Autenticación:** App Password
+
+### Emails Automáticos
+- ✅ Bienvenida al registrarse
+- ✅ Confirmación de reserva
+- ✅ Cancelación de reserva
+- ✅ Recordatorio de check-in (1 día antes)
+- ✅ Notificación a operadores (nuevas reservas y contactos)
+- ✅ Mensajes del formulario de contacto
+
+### Rotación de Operadores
+Los emails de nuevas reservas y contactos se distribuyen automáticamente entre operadores usando un sistema round-robin.
 
 ---
 
