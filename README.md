@@ -223,14 +223,17 @@ JWT_SECRET=tu_jwt_secret_super_seguro_aqui
 # Server Port
 PORT=3001
 
-# Email Configuration (Gmail SMTP)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_USER=tu_email@gmail.com
-EMAIL_PASSWORD=tu_app_password_de_16_caracteres
+# Email Configuration (SendGrid - Recomendado para Render)
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 EMAIL_FROM="Azure Suites Hotel <tu_email@gmail.com>"
 COMPANY_EMAIL=tu_email@gmail.com
+
+# Alternativa: Gmail SMTP (puede no funcionar en Render)
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_PORT=587
+# EMAIL_SECURE=false
+# EMAIL_USER=tu_email@gmail.com
+# EMAIL_PASSWORD=tu_app_password_de_16_caracteres
 
 # Frontend URL (para emails)
 FRONTEND_URL=http://localhost:3003
@@ -403,21 +406,22 @@ User 1:N Contact (responded)
 NODE_ENV=production
 DATABASE_URL=postgresql://...
 JWT_SECRET=...
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_USER=tu_email@gmail.com
-EMAIL_PASSWORD=tu_app_password_gmail
+
+# SendGrid (Recomendado - funciona en Render)
+SENDGRID_API_KEY=SG.xxxxxxxx...
 EMAIL_FROM="Azure Suites Hotel <tu_email@gmail.com>"
 COMPANY_EMAIL=tu_email@gmail.com
 FRONTEND_URL=https://tu-app.onrender.com
 ```
 
 **Notas importantes:**
-- **EMAIL_PASSWORD:** Debe ser una **App Password** de Gmail (16 caracteres), NO tu contraseña normal
-  - Genera una en: [Google Account > Security > App passwords](https://myaccount.google.com/apppasswords)
-- **COMPANY_EMAIL:** Email donde llegarán los mensajes del formulario de contacto (opcional, usa EMAIL_USER si no se especifica)
-- **EMAIL_FROM:** Debe contener el mismo email que EMAIL_USER
+- **SENDGRID_API_KEY:** Obtén una en [SendGrid](https://sendgrid.com) (100 emails/día gratis)
+  - Debes verificar tu email en SendGrid antes de enviar
+  - La API Key debe tener permisos de "Mail Send"
+- **EMAIL_FROM:** Debe ser el mismo email verificado en SendGrid
+- **COMPANY_EMAIL:** Email donde llegarán los mensajes del formulario de contacto
+
+**⚠️ Importante:** Render bloquea conexiones SMTP en su plan gratuito, por eso se recomienda SendGrid que usa API HTTP.
 
 #### 4. Deploy
 - Manual Deploy → Deploy latest commit
@@ -611,16 +615,148 @@ Para soporte, envía un email a support@azuresuites.com o abre un issue en GitHu
 #### A la Empresa:
 - ✅ **Mensajes del formulario de contacto** - Enviados a `COMPANY_EMAIL`
 
-### Configuración Detallada
-Ver [CONFIGURACION_EMAILS.md](./CONFIGURACION_EMAILS.md) para instrucciones completas de configuración en Render.
+### Configuración de SendGrid (Recomendado para Render)
+
+#### 1. Crear cuenta en SendGrid
+1. Ve a https://sendgrid.com/
+2. Regístrate gratis (100 emails/día)
+3. Verifica tu email
+
+#### 2. Verificar Sender Identity
+1. **Settings** → **Sender Authentication** → **"Verify a Single Sender"**
+2. Completa el formulario con tu email
+3. Verifica el email que SendGrid te envía
+4. Espera el check verde ✅
+
+#### 3. Crear API Key
+1. **Settings** → **API Keys** → **"Create API Key"**
+2. Name: "Azure Suites Production"
+3. Permissions: **Restricted Access** → **Mail Send: Full Access**
+4. Copia la API Key (empieza con `SG.`)
+
+#### 4. Configurar en Render
+Agrega estas variables de entorno:
+```
+SENDGRID_API_KEY=SG.xxxxxxxx...
+EMAIL_FROM=Azure Suites Hotel <tu_email@gmail.com>
+COMPANY_EMAIL=tu_email@gmail.com
+FRONTEND_URL=https://tu-app.onrender.com
+```
+
+#### 5. Instalar dependencia
+```bash
+cd backend
+npm install @sendgrid/mail
+```
+
+### ¿Por qué SendGrid y no Gmail SMTP?
+
+**Render bloquea conexiones SMTP** (puertos 587, 465, 25) en su plan gratuito para prevenir spam. SendGrid usa **API HTTP** en lugar de SMTP, por lo que funciona perfectamente.
+
+**Comparación:**
+| Característica | Gmail SMTP | SendGrid |
+|----------------|------------|----------|
+| Funciona en Render | ❌ No | ✅ Sí |
+| Configuración | Compleja | Simple |
+| Límite gratuito | N/A | 100/día |
+| Confiabilidad | Baja | Alta |
 
 ---
+
+## 📊 Visualizar Base de Datos
+
+### Opción 1: pgAdmin (Recomendado)
+
+**pgAdmin** es la herramienta oficial de PostgreSQL para administrar bases de datos.
+
+#### Instalación:
+1. Descarga desde: https://www.pgadmin.org/download/
+2. Instala según tu sistema operativo
+
+#### Conectar a Render:
+1. Abre pgAdmin
+2. Click derecho en "Servers" → "Register" → "Server"
+3. En la pestaña "General":
+   - Name: `Azure Suites - Render`
+4. En la pestaña "Connection":
+   - Host: (copia de Render Dashboard → Database → External Database URL)
+   - Port: `5432`
+   - Database: (nombre de tu base de datos)
+   - Username: (usuario de la base de datos)
+   - Password: (contraseña de la base de datos)
+5. Click "Save"
+
+#### Ver Diagrama ER:
+1. En pgAdmin, navega a tu base de datos
+2. Click derecho en la base de datos → **"ERD For Database"**
+3. Se abrirá un diagrama con todas las tablas y relaciones
+
+### Opción 2: DBeaver (Alternativa gratuita)
+
+1. Descarga desde: https://dbeaver.io/download/
+2. Instala y abre DBeaver
+3. Click en "New Database Connection"
+4. Selecciona "PostgreSQL"
+5. Ingresa los datos de conexión de Render
+6. Para ver el diagrama: Click derecho en tu base de datos → **"View Diagram"**
+
+### Opción 3: DataGrip (JetBrains - Pago)
+
+1. Descarga desde: https://www.jetbrains.com/datagrip/
+2. Conecta con los datos de Render
+3. Click derecho en la base de datos → **"Diagrams" → "Show Visualization"**
+
+### Opción 4: Render Dashboard (Limitado)
+
+1. Ve a [Render Dashboard](https://dashboard.render.com)
+2. Selecciona tu base de datos PostgreSQL
+3. Click en **"Connect"** → **"External Connection"**
+4. Usa las credenciales para conectarte con cualquier cliente SQL
+
+### Obtener Credenciales de Render:
+
+1. Ve a [Render Dashboard](https://dashboard.render.com)
+2. Click en tu base de datos PostgreSQL
+3. En la sección "Connections":
+   - **Internal Database URL:** Para conectar desde servicios de Render
+   - **External Database URL:** Para conectar desde tu computadora
+4. Copia la URL externa y extrae:
+   ```
+   postgresql://usuario:contraseña@host:puerto/database
+   ```
+
+### Estructura de la Base de Datos:
+
+```
+┌─────────────┐       ┌──────────────┐       ┌─────────────┐
+│    User     │──1:N──│ Reservation  │──N:1──│    Room     │
+│             │       │              │       │             │
+│ - id        │       │ - id         │       │ - id        │
+│ - email     │       │ - userId     │       │ - number    │
+│ - role      │       │ - roomId     │       │ - type      │
+│ - ...       │       │ - checkIn    │       │ - price     │
+└─────────────┘       │ - checkOut   │       │ - ...       │
+      │               │ - ...        │       └─────────────┘
+      │               └──────────────┘              
+      │                      │                       
+      │                      │                       
+      │               ┌──────────────┐              
+      └──────1:N──────│   Payment    │              
+                      │              │              
+                      │ - id         │              
+                      │ - userId     │              
+                      │ - reservationId              
+                      │ - amount     │              
+                      │ - ...        │              
+                      └──────────────┘              
+```
 
 ## 🙏 Agradecimientos
 
 - React Team por la increíble librería
 - Sequelize por el ORM robusto
 - Render por el hosting gratuito
+- SendGrid por el servicio de emails
 - Comunidad open source
 
 ---
