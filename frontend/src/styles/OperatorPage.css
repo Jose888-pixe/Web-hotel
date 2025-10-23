@@ -8,7 +8,7 @@
 
 /* Ensure first card has proper spacing */
 .container-fluid.page-container .card:first-of-type,
-.container-fluid.page-container .mb-4:first-of-type {
+.container-fluid.page-container .mb-3:first-of-type {
   margin-top: 0 !important;
 }
 
