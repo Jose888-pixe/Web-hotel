@@ -24,19 +24,27 @@ const PORT = process.env.PORT || 3001;
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, postman)
+    // Allow requests with no origin (like mobile apps, curl, postman, same-origin)
     if (!origin) return callback(null, true);
     
     // In production, allow same origin and configured frontend URL
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       'http://localhost:3003',
-      'http://localhost:3000'
+      'http://localhost:3000',
+      'http://localhost:3001'
     ].filter(Boolean);
     
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔍 CORS check - Origin:', origin);
+      console.log('🔍 Allowed origins:', allowedOrigins);
+    }
+    
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'production') {
+      console.log('✅ CORS allowed');
       callback(null, true);
     } else {
+      console.log('❌ CORS blocked');
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -263,12 +271,13 @@ app.get('/api/rooms/:id/occupied-dates', validateId, async (req, res) => {
       return res.status(404).json({ message: 'Room not found' });
     }
     
-    // Get ALL rooms of the same type and name
+    // Get ALL rooms of the same type and name (excluding maintenance)
     const roomsOfSameType = await Room.findAll({
       where: {
         type: room.type,
         name: room.name,
-        isActive: true
+        isActive: true,
+        status: { [Op.ne]: 'maintenance' }
       }
     });
     
@@ -276,15 +285,24 @@ app.get('/api/rooms/:id/occupied-dates', validateId, async (req, res) => {
     
     // Get all reservations for rooms of this type
     const roomIds = roomsOfSameType.map(r => r.id);
+    console.log(`🔍 Looking for reservations in room IDs:`, roomIds);
+    
     const reservations = await Reservation.findAll({
       where: {
         roomId: { [Op.in]: roomIds },
-        status: { [Op.in]: ['confirmed', 'checked-in'] }
+        status: { [Op.in]: ['pending', 'confirmed', 'checked-in'] }
       },
       attributes: ['id', 'roomId', 'checkIn', 'checkOut', 'status']
     });
     
     console.log(`Found ${reservations.length} reservations for rooms of this type`);
+    if (reservations.length > 0) {
+      console.log(`📋 Sample reservation:`, {
+        checkIn: reservations[0].checkIn,
+        checkOut: reservations[0].checkOut,
+        status: reservations[0].status
+      });
+    }
     
     // Group reservations by date and count how many rooms are occupied each day
     const dateOccupancyMap = {};
@@ -423,6 +441,8 @@ app.post('/api/rooms',
     });
   } catch (error) {
     console.error('Create room error:', error);
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
     
     // Manejar error de número duplicado
     if (error.name === 'SequelizeUniqueConstraintError') {
@@ -431,7 +451,17 @@ app.post('/api/rooms',
       });
     }
     
-    res.status(500).json({ message: 'Error al crear la habitación' });
+    // Manejar errores de validación
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ 
+        message: 'Error de validación: ' + error.errors.map(e => e.message).join(', ')
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Error al crear la habitación',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -1628,7 +1658,10 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connected');
     
-    await sequelize.sync();
+    // Sync database (alter: true solo en desarrollo)
+    await sequelize.sync({ 
+      alter: process.env.NODE_ENV !== 'production' 
+    });
     console.log('✅ Database synced');
     
     // Seed production database if empty

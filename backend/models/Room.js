@@ -28,7 +28,8 @@ const Room = sequelize.define('Room', {
   },
   description: {
     type: DataTypes.TEXT,
-    allowNull: false
+    allowNull: true,
+    defaultValue: ''
   },
   price: {
     type: DataTypes.DECIMAL(10, 2),
@@ -45,8 +46,9 @@ const Room = sequelize.define('Room', {
     }
   },
   size: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+    type: DataTypes.DECIMAL(5, 1),
+    allowNull: true,
+    defaultValue: 25,
     comment: 'Size in square meters'
   },
   features: {
@@ -66,7 +68,8 @@ const Room = sequelize.define('Room', {
   },
   floor: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true,
+    defaultValue: 1
   },
   isActive: {
     type: DataTypes.BOOLEAN,

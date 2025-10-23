@@ -22,15 +22,27 @@ const ReservationModal = ({ show, onHide, room, onSuccess }) => {
     if (!room) return;
     try {
       console.log('📡 Fetching occupied dates for room', room.id);
-      const API_URL = process.env.REACT_APP_API_URL || 
-        (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001');
-      const response = await fetch(`${API_URL}/api/rooms/${room.id}/occupied-dates`);
+      
+      // Usar axios directamente desde api.js para aprovechar la configuración
+      const response = await fetch(`/api/rooms/${room.id}/occupied-dates`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       console.log('✅ Received data:', data);
-      console.log('✅ Occupied dates:', data.occupiedDates);
+      console.log('✅ Occupied dates array:', data.occupiedDates);
+      console.log('✅ Number of occupied dates:', data.occupiedDates?.length || 0);
+      
+      if (data.occupiedDates && data.occupiedDates.length > 0) {
+        console.log('🔴 First occupied date:', data.occupiedDates[0]);
+        console.log('🔴 Last occupied date:', data.occupiedDates[data.occupiedDates.length - 1]);
+      }
+      
       setOccupiedDates(data.occupiedDates || []);
     } catch (err) {
-      console.error('❌ Error:', err);
+      console.error('❌ Error loading occupied dates:', err);
       setOccupiedDates([]);
     }
   }, [room]);
