@@ -1499,6 +1499,8 @@ app.post('/api/contact',
   try {
     const { name, email, subject, message } = req.body;
 
+    console.log('📝 Creating contact message from:', email);
+
     const contact = await Contact.create({
       name,
       email,
@@ -1508,10 +1510,18 @@ app.post('/api/contact',
       priority: 'medium'
     });
 
-    // Send notification email to next operator in rotation
+    console.log('✅ Contact message saved to database, ID:', contact.id);
+
+    // Send notification email to company email
+    let emailSent = false;
+    let emailError = null;
+    
     try {
-      const operator = await getNextOperator();
-      if (operator) {
+      const companyEmail = process.env.COMPANY_EMAIL || process.env.EMAIL_USER;
+      
+      if (companyEmail) {
+        console.log(`📧 Attempting to send contact form to company: ${companyEmail}`);
+        
         const contactTemplate = emailTemplates.contactMessage(
           {
             name: contact.name,
@@ -1519,15 +1529,25 @@ app.post('/api/contact',
             subject: contact.subject,
             message: contact.message
           },
-          `${operator.firstName} ${operator.lastName}`
+          'Azure Suites Hotel'
         );
-        await sendEmail(operator.email, contactTemplate);
-        console.log(`📧 Contact message forwarded to operator: ${operator.email}`);
+        
+        const emailResult = await sendEmail(companyEmail, contactTemplate);
+        
+        if (emailResult.success) {
+          emailSent = true;
+          console.log(`✅ Contact message forwarded to company: ${companyEmail}`);
+        } else {
+          emailError = emailResult.error;
+          console.error(`❌ Failed to send email: ${emailResult.error}`);
+        }
       } else {
-        console.warn('⚠️ No operators available to receive contact message');
+        console.warn('⚠️ No company email configured (COMPANY_EMAIL or EMAIL_USER)');
+        emailError = 'No company email configured';
       }
-    } catch (emailError) {
-      console.error('⚠️ Failed to send contact notification:', emailError);
+    } catch (emailErr) {
+      emailError = emailErr.message;
+      console.error('⚠️ Failed to send contact notification:', emailErr);
       // Don't fail contact creation if email fails
     }
 
@@ -1539,7 +1559,9 @@ app.post('/api/contact',
         email: contact.email,
         subject: contact.subject,
         status: contact.status
-      }
+      },
+      emailSent,
+      ...(emailError && { emailWarning: 'Message saved but email notification failed' })
     });
   } catch (error) {
     console.error('Contact form error:', error);

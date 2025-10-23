@@ -11,6 +11,7 @@ const checks = {
   'EMAIL_PASSWORD': process.env.EMAIL_PASSWORD ? '***CONFIGURED***' : undefined,
   'EMAIL_SECURE': process.env.EMAIL_SECURE,
   'EMAIL_FROM': process.env.EMAIL_FROM,
+  'COMPANY_EMAIL': process.env.COMPANY_EMAIL || process.env.EMAIL_USER,
   'FRONTEND_URL': process.env.FRONTEND_URL
 };
 

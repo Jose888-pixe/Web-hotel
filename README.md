@@ -229,7 +229,8 @@ EMAIL_PORT=587
 EMAIL_SECURE=false
 EMAIL_USER=tu_email@gmail.com
 EMAIL_PASSWORD=tu_app_password_de_16_caracteres
-EMAIL_FROM="Azure Suites Hotel <noreply@azuresuites.com>"
+EMAIL_FROM="Azure Suites Hotel <tu_email@gmail.com>"
+COMPANY_EMAIL=tu_email@gmail.com
 
 # Frontend URL (para emails)
 FRONTEND_URL=http://localhost:3003
@@ -407,14 +408,16 @@ EMAIL_PORT=587
 EMAIL_SECURE=false
 EMAIL_USER=tu_email@gmail.com
 EMAIL_PASSWORD=tu_app_password_gmail
-EMAIL_FROM="Azure Suites Hotel <noreply@azuresuites.com>"
+EMAIL_FROM="Azure Suites Hotel <tu_email@gmail.com>"
+COMPANY_EMAIL=tu_email@gmail.com
 FRONTEND_URL=https://tu-app.onrender.com
 ```
 
-**Nota importante sobre EMAIL_PASSWORD:**
-- Debe ser una **App Password** de Gmail (16 caracteres)
-- No uses tu contraseña normal de Gmail
-- Genera una en: [Google Account > Security > 2-Step Verification > App passwords](https://myaccount.google.com/apppasswords)
+**Notas importantes:**
+- **EMAIL_PASSWORD:** Debe ser una **App Password** de Gmail (16 caracteres), NO tu contraseña normal
+  - Genera una en: [Google Account > Security > App passwords](https://myaccount.google.com/apppasswords)
+- **COMPANY_EMAIL:** Email donde llegarán los mensajes del formulario de contacto (opcional, usa EMAIL_USER si no se especifica)
+- **EMAIL_FROM:** Debe contener el mismo email que EMAIL_USER
 
 #### 4. Deploy
 - Manual Deploy → Deploy latest commit
@@ -598,15 +601,18 @@ Para soporte, envía un email a support@azuresuites.com o abre un issue en GitHu
 - **Autenticación:** App Password
 
 ### Emails Automáticos
-- ✅ Bienvenida al registrarse
-- ✅ Confirmación de reserva
-- ✅ Cancelación de reserva
-- ✅ Recordatorio de check-in (1 día antes)
-- ✅ Notificación a operadores (nuevas reservas y contactos)
-- ✅ Mensajes del formulario de contacto
 
-### Rotación de Operadores
-Los emails de nuevas reservas y contactos se distribuyen automáticamente entre operadores usando un sistema round-robin.
+#### A los Usuarios:
+- ✅ **Bienvenida** - Al registrarse en la plataforma
+- ✅ **Confirmación de reserva** - Cuando un operador confirma su reserva
+- ✅ **Cancelación de reserva** - Cuando se cancela una reserva
+- ✅ **Recordatorio de check-in** - 1 día antes de la llegada (9:00 AM)
+
+#### A la Empresa:
+- ✅ **Mensajes del formulario de contacto** - Enviados a `COMPANY_EMAIL`
+
+### Configuración Detallada
+Ver [CONFIGURACION_EMAILS.md](./CONFIGURACION_EMAILS.md) para instrucciones completas de configuración en Render.
 
 ---
 

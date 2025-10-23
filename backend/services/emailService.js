@@ -15,9 +15,31 @@ const initializeTransporter = async () => {
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
-      }
+      },
+      // Add timeout and connection settings
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,   // 10 seconds
+      socketTimeout: 15000,      // 15 seconds
+      // Gmail specific settings
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
+      rateDelta: 1000,
+      rateLimit: 5
     });
     console.log('📧 Email service configured with custom SMTP');
+    console.log(`📧 Host: ${process.env.EMAIL_HOST}:${process.env.EMAIL_PORT}`);
+    console.log(`📧 User: ${process.env.EMAIL_USER}`);
+    console.log(`📧 Secure: ${process.env.EMAIL_SECURE}`);
+    
+    // Verify connection
+    try {
+      await transporter.verify();
+      console.log('✅ SMTP connection verified successfully');
+    } catch (error) {
+      console.error('❌ SMTP connection verification failed:', error.message);
+      console.error('⚠️  Emails may not be sent. Check your credentials and settings.');
+    }
   } else {
     // Use Ethereal for testing (creates temporary account)
     const testAccount = await nodemailer.createTestAccount();
@@ -451,10 +473,15 @@ const emailTemplates = {
 
 // Send email function
 const sendEmail = async (to, template) => {
+  const startTime = Date.now();
   try {
     if (!transporter) {
+      console.log('📧 Initializing email transporter...');
       await initializeTransporter();
     }
+
+    console.log(`📧 Sending email to: ${to}`);
+    console.log(`📧 Subject: ${template.subject}`);
 
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM || '"Azure Suites Hotel" <noreply@azuresuites.com>',
@@ -463,17 +490,37 @@ const sendEmail = async (to, template) => {
       html: template.html
     });
 
-    console.log('📧 Email sent:', info.messageId);
+    const duration = Date.now() - startTime;
+    console.log(`✅ Email sent successfully in ${duration}ms`);
+    console.log(`📧 Message ID: ${info.messageId}`);
     
     // If using Ethereal, log preview URL
     if (nodemailer.getTestMessageUrl(info)) {
       console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(info));
     }
 
-    return { success: true, messageId: info.messageId };
+    return { success: true, messageId: info.messageId, duration };
   } catch (error) {
-    console.error('❌ Error sending email:', error);
-    return { success: false, error: error.message };
+    const duration = Date.now() - startTime;
+    console.error(`❌ Error sending email after ${duration}ms:`, error.message);
+    console.error('Error details:', {
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode
+    });
+    
+    // Provide more helpful error messages
+    let userMessage = error.message;
+    if (error.code === 'ETIMEDOUT') {
+      userMessage = 'Email service timeout. Please check your internet connection and SMTP settings.';
+    } else if (error.code === 'EAUTH') {
+      userMessage = 'Email authentication failed. Please verify your email credentials.';
+    } else if (error.code === 'ECONNECTION') {
+      userMessage = 'Cannot connect to email server. Please check SMTP host and port.';
+    }
+    
+    return { success: false, error: userMessage, details: error.message };
   }
 };
 
