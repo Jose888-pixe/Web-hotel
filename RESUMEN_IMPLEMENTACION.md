@@ -40,10 +40,12 @@ Usuario recibe confirmación con todos los detalles
 ```
 
 **Archivo:**
-- `backend/server.js` (líneas 754-771)
+- `backend/server.js` (líneas 740-812)
 
 **Estado:**
-- ✅ **Ya estaba implementado** - Solo verificado y confirmado funcionando
+- ✅ **Mejorado y optimizado** - Ahora con mejor manejo de errores y logs detallados
+- ✅ Soporte para SendGrid
+- ✅ Fallback a `guestEmail` si no hay usuario registrado
 
 **Template del email:**
 - `backend/services/emailService.js` (líneas 113-185)

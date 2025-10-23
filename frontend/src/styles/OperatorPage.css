@@ -1,5 +1,11 @@
 /* Operator Page Styles */
 
+/* Fix navbar overlap */
+.page-container {
+  padding-top: 80px !important;
+  min-height: 100vh;
+}
+
 .room-group-header {
   cursor: pointer;
   background-color: #f8f9fa;

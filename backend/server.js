@@ -740,6 +740,8 @@ app.put('/api/reservations/:id', authenticateToken, validateId, async (req, res)
     // Send email notification to user based on status change
     if (status && status !== oldStatus) {
       try {
+        console.log(`📧 Status changed from "${oldStatus}" to "${status}". Preparing email...`);
+        
         // Get full reservation with includes
         const fullReservation = await Reservation.findByPk(id, {
           include: [
@@ -748,30 +750,63 @@ app.put('/api/reservations/:id', authenticateToken, validateId, async (req, res)
           ]
         });
 
-        if (fullReservation && fullReservation.user && fullReservation.room) {
-          let template = null;
+        if (fullReservation && fullReservation.room) {
+          // Determine recipient email (user email or guest email from reservation)
+          const recipientEmail = fullReservation.user?.email || fullReservation.guestEmail;
+          const recipientName = fullReservation.user?.firstName || fullReservation.guestFirstName;
+          
+          if (!recipientEmail) {
+            console.warn('⚠️ No email found for reservation notification');
+          } else {
+            console.log(`📧 Recipient: ${recipientEmail} (${recipientName})`);
 
-          if (status === 'confirmed') {
-            template = emailTemplates.reservationConfirmed(
-              fullReservation,
-              fullReservation.room,
-              fullReservation.user
-            );
-          } else if (status === 'cancelled') {
-            template = emailTemplates.reservationCancelled(
-              fullReservation,
-              fullReservation.room,
-              fullReservation.user
-            );
-          }
+            let template = null;
 
-          if (template) {
-            await sendEmail(fullReservation.user.email, template);
-            console.log(`📧 ${status} email sent to ${fullReservation.user.email}`);
+            if (status === 'confirmed') {
+              console.log('📧 Generating confirmation email template...');
+              // Create user object for template (use guest data if no user)
+              const userForTemplate = fullReservation.user || {
+                firstName: fullReservation.guestFirstName,
+                lastName: fullReservation.guestLastName,
+                email: fullReservation.guestEmail
+              };
+              
+              template = emailTemplates.reservationConfirmed(
+                fullReservation,
+                fullReservation.room,
+                userForTemplate
+              );
+            } else if (status === 'cancelled') {
+              console.log('📧 Generating cancellation email template...');
+              const userForTemplate = fullReservation.user || {
+                firstName: fullReservation.guestFirstName,
+                lastName: fullReservation.guestLastName,
+                email: fullReservation.guestEmail
+              };
+              
+              template = emailTemplates.reservationCancelled(
+                fullReservation,
+                fullReservation.room,
+                userForTemplate
+              );
+            }
+
+            if (template) {
+              console.log(`📧 Sending ${status} email to ${recipientEmail}...`);
+              const emailResult = await sendEmail(recipientEmail, template);
+              
+              if (emailResult.success) {
+                console.log(`✅ ${status} email sent successfully to ${recipientEmail}`);
+              } else {
+                console.error(`❌ Failed to send ${status} email: ${emailResult.error}`);
+              }
+            }
           }
+        } else {
+          console.warn('⚠️ Could not load reservation or room data for email');
         }
       } catch (emailError) {
-        console.error('⚠️ Failed to send status change email:', emailError);
+        console.error('⚠️ Failed to send status change email:', emailError.message);
         // Don't fail update if email fails
       }
     }
