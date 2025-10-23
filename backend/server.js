@@ -1658,9 +1658,9 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connected');
     
-    // Sync database (alter: true solo en desarrollo)
+    // Sync database (alter: true TEMPORALMENTE para actualizar size a DECIMAL)
     await sequelize.sync({ 
-      alter: process.env.NODE_ENV !== 'production' 
+      alter: true  // CAMBIAR A false DESPUÉS DE UN DEPLOY
     });
     console.log('✅ Database synced');
     
