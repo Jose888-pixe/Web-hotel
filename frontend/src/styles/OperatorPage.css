@@ -2,7 +2,7 @@
 
 /* Fix navbar overlap - Increased padding to prevent content from being hidden */
 .container-fluid.page-container {
-  padding-top: 120px !important;
+  padding-top: 100px !important;
   min-height: 100vh;
 }
 
