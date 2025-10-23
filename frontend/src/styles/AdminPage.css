@@ -839,9 +839,9 @@
 /* ============================================ */
 
 .users-section-header {
-    margin-top: 50px;
+    margin-top: 0;
     margin-bottom: 1.5rem;
-    padding-top: 20px;
+    padding-top: 0;
 }
 
 .users-section-title {
@@ -858,7 +858,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding-top: 10px;
+    padding-top: 0;
 }
 
 .rooms-section-header {
@@ -869,7 +869,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border-radius: 8px 8px 0 0;
     flex-shrink: 0;
-    margin-top: 40px;
+    margin-top: 0;
 }
 
 .rooms-section-title {
