@@ -44,7 +44,7 @@ const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChan
     // Si la fecha está ocupada, no permitir selección
     if (isDateOccupied(dateStr)) {
       logger.log('❌ Date is occupied, cannot select');
-      if (onError) onError('Esta fecha no está disponible');
+      if (onError) onError('⛔ Esta fecha no tiene habitaciones disponibles. Por favor selecciona otro día.');
       return;
     }
 
@@ -128,6 +128,15 @@ const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChan
     const totalDays = daysInMonth(currentMonth);
     const firstDay = firstDayOfMonth(currentMonth);
     
+    // Log occupied dates for current month
+    const currentMonthOccupied = occupiedDates.filter(date => {
+      const d = new Date(date);
+      return d.getMonth() === currentMonth.getMonth() && d.getFullYear() === currentMonth.getFullYear();
+    });
+    if (currentMonthOccupied.length > 0) {
+      logger.log(`🔴 Occupied dates in ${currentMonth.getMonth() + 1}/${currentMonth.getFullYear()}:`, currentMonthOccupied);
+    }
+    
     // Empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
@@ -147,6 +156,7 @@ const DatePicker = ({ checkInDate, checkOutDate, onCheckInChange, onCheckOutChan
           key={day}
           className={`calendar-day cursor-pointer ${isOccupied ? 'occupied' : ''} ${isDisabled ? 'disabled' : ''} ${isCheckIn ? 'check-in' : ''} ${isCheckOut ? 'check-out' : ''} ${inRange && !isCheckIn && !isCheckOut ? 'in-range' : ''}`}
           onClick={() => handleDateClick(day)}
+          title={isOccupied ? 'Sin disponibilidad - Todas las habitaciones están ocupadas' : isDisabled ? 'Fecha pasada' : ''}
         >
           {day}
         </div>

@@ -60,33 +60,45 @@
 }
 
 .calendar-day.occupied {
-  background: linear-gradient(135deg, #ef5350 0%, #e53935 100%) !important;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
   color: white !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   cursor: not-allowed !important;
   position: relative;
-  border: 2px solid #c62828 !important;
+  border: 2px solid #bd2130 !important;
   text-decoration: line-through;
-  opacity: 0.9;
-  box-shadow: 0 2px 4px rgba(229, 57, 53, 0.3);
+  opacity: 1;
+  box-shadow: 0 3px 8px rgba(220, 53, 69, 0.5);
+}
+
+.calendar-day.occupied::before {
+  content: '🚫';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  opacity: 0.3;
 }
 
 .calendar-day.occupied::after {
   content: '✕';
   position: absolute;
   top: 2px;
-  right: 2px;
-  font-size: 0.6rem;
+  right: 4px;
+  font-size: 0.7rem;
   color: white;
   font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .calendar-day.occupied:hover {
-  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%) !important;
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%) !important;
   transform: none !important;
-  border-color: #b71c1c !important;
+  border-color: #a71d2a !important;
   opacity: 1;
-  box-shadow: 0 3px 6px rgba(229, 57, 53, 0.4);
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.6);
+  cursor: not-allowed !important;
 }
 
 .calendar-day.disabled {
@@ -135,8 +147,8 @@
 }
 
 .legend-color.occupied {
-  background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
-  border-color: #c62828;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border-color: #bd2130;
 }
 
 .legend-color.selected {
