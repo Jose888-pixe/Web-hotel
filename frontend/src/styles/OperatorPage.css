@@ -1,9 +1,15 @@
 /* Operator Page Styles */
 
-/* Fix navbar overlap */
-.page-container {
-  padding-top: 80px !important;
+/* Fix navbar overlap - Increased padding to prevent content from being hidden */
+.container-fluid.page-container {
+  padding-top: 120px !important;
   min-height: 100vh;
+}
+
+/* Ensure first card has proper spacing */
+.container-fluid.page-container .card:first-of-type,
+.container-fluid.page-container .mb-4:first-of-type {
+  margin-top: 0 !important;
 }
 
 .room-group-header {
