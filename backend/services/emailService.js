@@ -1,11 +1,23 @@
 const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
 // Create transporter
 let transporter;
+let useSendGrid = false;
 
 // For development: Use Ethereal (test email service)
-// For production: Use real SMTP service
+// For production: Use SendGrid (recommended) or SMTP
 const initializeTransporter = async () => {
+  // Check if SendGrid is configured (recommended for Render)
+  if (process.env.SENDGRID_API_KEY) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    useSendGrid = true;
+    console.log('📧 Email service configured with SendGrid API');
+    console.log('📧 From:', process.env.EMAIL_FROM || 'noreply@azuresuites.com');
+    return;
+  }
+  
+  // Fallback to SMTP (may not work on Render free tier)
   if (process.env.EMAIL_HOST && process.env.EMAIL_USER) {
     // Use configured SMTP service
     transporter = nodemailer.createTransport({
@@ -475,7 +487,7 @@ const emailTemplates = {
 const sendEmail = async (to, template) => {
   const startTime = Date.now();
   try {
-    if (!transporter) {
+    if (!transporter && !useSendGrid) {
       console.log('📧 Initializing email transporter...');
       await initializeTransporter();
     }
@@ -483,6 +495,23 @@ const sendEmail = async (to, template) => {
     console.log(`📧 Sending email to: ${to}`);
     console.log(`📧 Subject: ${template.subject}`);
 
+    // Use SendGrid if configured
+    if (useSendGrid) {
+      const msg = {
+        to: to,
+        from: process.env.EMAIL_FROM || 'noreply@azuresuites.com',
+        subject: template.subject,
+        html: template.html
+      };
+
+      const response = await sgMail.send(msg);
+      const duration = Date.now() - startTime;
+      console.log(`✅ Email sent via SendGrid in ${duration}ms`);
+      console.log(`📧 Status: ${response[0].statusCode}`);
+      return { success: true, messageId: response[0].headers['x-message-id'], duration };
+    }
+
+    // Use SMTP (Nodemailer)
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM || '"Azure Suites Hotel" <noreply@azuresuites.com>',
       to: to,
@@ -491,7 +520,7 @@ const sendEmail = async (to, template) => {
     });
 
     const duration = Date.now() - startTime;
-    console.log(`✅ Email sent successfully in ${duration}ms`);
+    console.log(`✅ Email sent via SMTP in ${duration}ms`);
     console.log(`📧 Message ID: ${info.messageId}`);
     
     // If using Ethereal, log preview URL

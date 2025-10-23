@@ -4,7 +4,17 @@ console.log('\n📧 ================================');
 console.log('   EMAIL CONFIGURATION CHECK');
 console.log('================================\n');
 
-const checks = {
+// Check if SendGrid is configured
+const usingSendGrid = !!process.env.SENDGRID_API_KEY;
+
+console.log(`📮 Email Provider: ${usingSendGrid ? 'SendGrid (Recommended for Render)' : 'SMTP'}\n`);
+
+const checks = usingSendGrid ? {
+  'SENDGRID_API_KEY': process.env.SENDGRID_API_KEY ? '***CONFIGURED***' : undefined,
+  'EMAIL_FROM': process.env.EMAIL_FROM,
+  'COMPANY_EMAIL': process.env.COMPANY_EMAIL || process.env.EMAIL_USER,
+  'FRONTEND_URL': process.env.FRONTEND_URL
+} : {
   'EMAIL_HOST': process.env.EMAIL_HOST,
   'EMAIL_PORT': process.env.EMAIL_PORT,
   'EMAIL_USER': process.env.EMAIL_USER,
@@ -54,8 +64,22 @@ if (allConfigured) {
 // Additional validation
 console.log('🔍 Additional Checks:\n');
 
-if (process.env.EMAIL_HOST === 'smtp.gmail.com') {
-  console.log('✅ Using Gmail SMTP');
+if (usingSendGrid) {
+  console.log('✅ Using SendGrid API (Recommended for Render)');
+  
+  if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.')) {
+    console.log('✅ API Key format looks correct (starts with SG.)');
+  } else if (process.env.SENDGRID_API_KEY) {
+    console.log('⚠️  API Key should start with "SG."');
+  }
+  
+  if (process.env.EMAIL_FROM) {
+    console.log('✅ Sender email configured');
+    console.log('   ⚠️  Make sure this email is verified in SendGrid!');
+  }
+} else if (process.env.EMAIL_HOST === 'smtp.gmail.com') {
+  console.log('⚠️  Using Gmail SMTP (May not work on Render free tier)');
+  console.log('   Consider using SendGrid instead for better reliability\n');
   
   if (process.env.EMAIL_PORT === '587') {
     console.log('✅ Port 587 (TLS) - Correct');
@@ -89,7 +113,7 @@ if (process.env.FRONTEND_URL) {
 console.log('\n' + '='.repeat(50) + '\n');
 
 // Show what emails will be sent
-if (allConfigured || (process.env.EMAIL_HOST && process.env.EMAIL_USER)) {
+if (allConfigured || usingSendGrid || (process.env.EMAIL_HOST && process.env.EMAIL_USER)) {
   console.log('📨 Emails that will be sent:\n');
   console.log('   • Welcome email when user registers');
   console.log('   • New reservation to operators (with rotation)');
